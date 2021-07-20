@@ -1,0 +1,17 @@
+Object.defineProperty(window, '_fs_namespace', {
+  writable: true,
+  value: 'FS'
+});
+
+// define an ES5 class similar to the recording snippet
+const FS = () => { };
+FS.event = jest.fn();
+FS.identify = jest.fn();
+FS.setVars = jest.fn();
+FS.setUserVars = jest.fn();
+
+// NOTE this will always use the exemplar `FS` namespace
+Object.defineProperty(window, 'FS', {
+  writable: false,
+  value: FS,
+});

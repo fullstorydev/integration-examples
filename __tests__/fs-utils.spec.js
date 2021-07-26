@@ -1,5 +1,5 @@
 import '../__mocks__/fs';
-import { fs, hasFs } from '../src/utils/fs';
+import { fs, hasFs, waitUntil } from '../src/utils/fs';
 
 describe('FullStory utilities', () => {
   test('Recording API exists in the window', () => {
@@ -36,5 +36,12 @@ describe('FullStory utilities', () => {
     fs('setUserVars')({ displayName: 'FullStory' });
     expect(fs('setUserVars')).toHaveBeenCalled();
     expect(fs('setUserVars').mock.calls[0][0]).toBeDefined();
+  });
+
+  test('function can be polled and called', (done) => {
+    waitUntil(() => window._fs_jest, done, 2000)();
+    setTimeout(() => {
+      window._fs_jest = true;
+    }, 250);
   });
 });

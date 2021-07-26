@@ -4,16 +4,16 @@ This project contains a collection of code samples, integrations, and best pract
 
 ## Using Samples
 
-Samples can be referenced directly from their respective JavaScript files. The `utils` folder contains utility functions that can be used with any integration project or are specific to a vendor. More feature rich use cases exist in the `src` folder in their respective vendor directories. These use cases have a modular design to support testing and composition. To create a sample that can be deployed to your website, see the Building Samples section.
+Compiled samples can be found in the `dist` folder. Each sample is packaged as an [IIFE](https://developer.mozilla.org/en-US/docs/Glossary/IIFE), which can deployed through a tag manager or simply re-used within your project.
 
 ## Building Samples
 
-To deploy a sample to you website, clone this repo and then do the following:
+If you'd like to modify a sample or build your own, follow these steps:
 
 1. Install [Node.js](https://nodejs.org) as needed.
 2. Change directory to this project's root folder.
 3. Run `npm install`.
-4. Run `npm run build`.
-5. Refer to the files contained in the `dist` folder.
+4. Code your integration as a new JavaScript file in the `src` folder.
+5. Run `npm run build`.
 
-Each sample will be an [IIFE](https://developer.mozilla.org/en-US/docs/Glossary/IIFE). You can deploy the IIFE through a tag manager or simply re-use the code within your own project.
+The `dist` folder will contain a compiled file that has the same name as the one in your `src` folder.

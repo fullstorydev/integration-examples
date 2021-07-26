@@ -26,9 +26,10 @@
       totalTime += delay;
       setTimeout(resultFn, delay);
     };
-    return resultFn;
+    resultFn();
   }
 
+  const timeout = 2000;
   function identify() {
     const userVars = window._fs_user_identity;
     if (!userVars || !userVars.uid) {
@@ -41,6 +42,6 @@
   fs('shutdown')();
   waitUntil(function () {
     return window._fs_user_identity;
-  }, identify, 2000, fs('restart'))();
+  }, identify, timeout, fs('restart'));
 
 }());

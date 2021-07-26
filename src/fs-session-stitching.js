@@ -1,9 +1,12 @@
 import { fs, waitUntil } from './utils/fs';
 
 /**
- * Demonstrates cross-domain session stitching, which involves delaying recording until a persistent
- * user ID can be passed to `FS.identify`.
+ * Demonstrates cross-domain session stitching, which involves delaying recording until `window._fs_user_identity`
+ * is assigned an object that contains `uid` or `timeout` is reached. This code must immediately execute after loading
+ * the FullStory snippet.
  */
+
+const timeout = 2000;
 
 /**
  * Get `window._fs_user_identity` for an object containing user vars, identify the user, and resume recording.
@@ -28,4 +31,4 @@ fs('shutdown')();
 waitUntil(function () {
   // check `window._fs_user_identity` for an object containing user vars or a falsy value
   return window._fs_user_identity;
-}, identify, 2000, fs('restart'))();
+}, identify, timeout, fs('restart'));

@@ -50,5 +50,5 @@ export function waitUntil(predicateFn, callbackFn, timeout, timeoutFn) {
     setTimeout(resultFn, delay);
   };
 
-  return resultFn;
+  resultFn();
 }

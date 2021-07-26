@@ -39,9 +39,35 @@ describe('FullStory utilities', () => {
   });
 
   test('function can be polled and called', (done) => {
-    waitUntil(() => window._fs_jest, done, 2000)();
+    const timeout = 2000;  // milliseconds
+
+    const callbackFn = () => {
+      const end = Date.now();
+      expect(end).toBeLessThan(start + timeout);
+      done();
+    }
+
+    const start = Date.now();
+    waitUntil(() => window[start], callbackFn, timeout);
     setTimeout(() => {
-      window._fs_jest = true;
+      window[start] = true;
     }, 250);
+  });
+
+  test('timeout function can be used as a fallback case', (done) => {
+    const timeout = 500;  // milliseconds
+
+    const predicateFn = jest.fn();
+    const callbackFn = jest.fn();
+    const timeoutFn = () => {
+      const end = Date.now();
+      expect(end).toBeGreaterThanOrEqual(start + timeout);
+      expect(predicateFn).toBeCalled();
+      expect(callbackFn).toBeCalledTimes(0);
+      done();
+    }
+
+    const start = Date.now();
+    waitUntil(predicateFn, callbackFn, timeout, timeoutFn);
   });
 });

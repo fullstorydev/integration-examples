@@ -7,6 +7,7 @@ Object.defineProperty(window, '_fs_namespace', {
 const FS = () => { };
 FS.event = jest.fn();
 FS.identify = jest.fn();
+FS.log = jest.fn();
 FS.restart = jest.fn();
 FS.setVars = jest.fn();
 FS.setUserVars = jest.fn();

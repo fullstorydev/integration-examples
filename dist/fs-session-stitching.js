@@ -13,7 +13,7 @@
     let totalTime = 0;
     let delay = 64;
     const resultFn = function () {
-      if (predicateFn()) {
+      if (typeof predicateFn === 'function' && predicateFn()) {
         callbackFn();
         return;
       }
@@ -31,17 +31,19 @@
 
   const timeout = 2000;
   function identify() {
-    const userVars = window._fs_user_identity;
-    if (!userVars || !userVars.uid) {
-      console.error('FS.identify requires user variables to exist and contain uid');
+    if (typeof window._fs_identity === 'function') {
+      const userVars = window._fs_identity();
+      if (typeof userVars === 'object' && typeof userVars.uid === 'string') {
+        fs('setUserVars')(userVars);
+        fs('restart')();
+      } else {
+        fs('log')('error', 'FS.setUserVars requires an object that contains uid');
+      }
     } else {
-      fs('setUserVars')(userVars);
-      fs('restart')();
+      fs('log')('error', 'window["_fs_identity"] function not found');
     }
   }
   fs('shutdown')();
-  waitUntil(function () {
-    return window._fs_user_identity;
-  }, identify, timeout, fs('restart'));
+  waitUntil(window._fs_identity, identify, timeout, fs('restart'));
 
 }());

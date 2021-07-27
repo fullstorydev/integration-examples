@@ -31,9 +31,8 @@ export function hasFs() {
 export function waitUntil(predicateFn, callbackFn, timeout, timeoutFn) {
   let totalTime = 0;
   let delay = 64;
-
   const resultFn = function () {
-    if (predicateFn()) {
+    if (typeof predicateFn === 'function' && predicateFn()) {
       callbackFn();
       return;
     }

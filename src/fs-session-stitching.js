@@ -2,33 +2,29 @@ import { fs, waitUntil } from './utils/fs';
 
 /**
  * Demonstrates cross-domain session stitching, which involves delaying recording until `window._fs_user_identity`
- * is assigned an object that contains `uid` or `timeout` is reached. This code must immediately execute after loading
+ * returns an object that contains `uid` or `timeout` is reached. This code must immediately execute after loading
  * the FullStory snippet.
  */
 
-const timeout = 2000;
+const timeout = 2000; // NOTE recording may be delayed until timeout is reached
 
-/**
- * Get `window._fs_user_identity` for an object containing user vars, identify the user, and resume recording.
- * The object returned must contain `uid` and can optionally contain additional properties per
- * https://help.fullstory.com/hc/en-us/articles/360020623294.
- */
 function identify() {
-  const userVars = window._fs_user_identity;
+  if (typeof window._fs_identity === 'function') {
+    const userVars = window._fs_identity();
 
-  if (!userVars || !userVars.uid) {
-    console.error('FS.identify requires user variables to exist and contain uid');
+    if (typeof userVars === 'object' && typeof userVars.uid === 'string') {
+      fs('setUserVars')(userVars);
+      fs('restart')();
+    } else {
+      fs('log')('error', 'FS.setUserVars requires an object that contains uid');
+    }
   } else {
-    fs('setUserVars')(userVars);
-    fs('restart')();
+    fs('log')('error', 'window["_fs_identity"] function not found');
   }
 }
 
-// immediately call `FS.shutdown` after loading the snippet
+// immediately calls `FS.shutdown` after loading the snippet to prevent call to rec/page
 fs('shutdown')();
 
 // wait until a UID is available or timeout and resume recording
-waitUntil(function () {
-  // check `window._fs_user_identity` for an object containing user vars or a falsy value
-  return window._fs_user_identity;
-}, identify, timeout, fs('restart'));
+waitUntil(window._fs_identity, identify, timeout, fs('restart'));

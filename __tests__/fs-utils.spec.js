@@ -1,7 +1,13 @@
 import '../__mocks__/fs';
 import { fs, hasFs } from '../src/utils/fs';
 
+const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
 describe('FullStory utilities', () => {
+  beforeEach(() => {
+    consoleSpy.mockClear()
+  });
+
   test('Recording API exists in the window', () => {
     expect(fs()).toBeDefined();
   });
@@ -13,6 +19,22 @@ describe('FullStory utilities', () => {
     // set it back to the mock's default `_fs_namespace`
     window._fs_namespace = 'FS';
     expect(hasFs()).toBeTruthy();
+  });
+
+  test('missing FS or APIs log error rather than throw exception', () => {
+    // temporarily remove FS
+    const FS = window.FS;
+    window.FS = undefined;
+    fs('setUserVars')({ foo: 'bar' });
+    expect(console.error).toBeCalledTimes(1);
+    expect(console.error).toHaveBeenLastCalledWith('FullStory unavailable, check your snippet or tag');
+
+    // add back FS
+    window.FS = FS;
+    fs('newFeature')({ foo: 'bar' });
+    expect(console.error).toBeCalledTimes(2);
+    expect(console.error).toHaveBeenLastCalledWith(
+      `${window._fs_namespace}.newFeature unavailable, update your snippet or verify the API call`);
   });
 
   test('Recording APIs can be called', () => {

@@ -2,15 +2,21 @@
   'use strict';
 
   function fs(api) {
-    if (!window._fs_namespace) {
-      console.error(`FullStory unavailable, window["_fs_namespace"] must be defined`);
-      return undefined;
+    if (!hasFs()) {
+      return function () {
+        console.error(`FullStory unavailable, check your snippet or tag`);
+      }
     } else {
+      if (api && !window[window._fs_namespace][api]) {
+        return function () {
+          console.error(`${window._fs_namespace}.${api} unavailable, update your snippet or verify the API call`);
+        }
+      }
       return api ? window[window._fs_namespace][api] : window[window._fs_namespace];
     }
   }
   function hasFs() {
-    return typeof fs() === 'function';
+    return window._fs_namespace && typeof window[window._fs_namespace] === 'function';
   }
 
   function optimizely(api) {

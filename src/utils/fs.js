@@ -40,13 +40,13 @@ export function waitUntil(predicateFn, callbackFn, timeout, timeoutFn) {
     delay = Math.min(delay * 2, 1024);
 
     if (totalTime > timeout) {
-      if (timeoutFn) {
+      if (typeof timeoutFn === 'function') {
         timeoutFn();
       }
+    } else {
+      totalTime += delay
+      setTimeout(resultFn, delay);
     }
-
-    totalTime += delay
-    setTimeout(resultFn, delay);
   };
 
   resultFn();

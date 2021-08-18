@@ -26,3 +26,35 @@ export function fs(api) {
 export function hasFs() {
   return window._fs_namespace && typeof window[window._fs_namespace] === 'function';
 }
+
+/**
+ * Waits until a `predicateFn` returns truthy and executes a `callbackFn`.
+ * This function will exponentially backoff and wait up to 1024ms until `timeout` is reached.
+ * @param predicateFn Tests if the `callbackFn` should run
+ * @param callbackFn Callback function to execute when the `predicateFn` is truthy
+ * @param timeout Number of milliseconds to wait before giving up
+ * @param timeoutFn Optional function executed when the timeout is reached
+ */
+export function waitUntil(predicateFn, callbackFn, timeout, timeoutFn) {
+  let totalTime = 0;
+  let delay = 64;
+  const resultFn = function () {
+    if (typeof predicateFn === 'function' && predicateFn()) {
+      callbackFn();
+      return;
+    }
+
+    delay = Math.min(delay * 2, 1024);
+
+    if (totalTime > timeout) {
+      if (typeof timeoutFn === 'function') {
+        timeoutFn();
+      }
+    } else {
+      totalTime += delay
+      setTimeout(resultFn, delay);
+    }
+  };
+
+  resultFn();
+}

@@ -15,6 +15,6 @@ FS.shutdown = jest.fn();
 
 // NOTE this will always use the exemplar `FS` namespace
 Object.defineProperty(window, 'FS', {
-  writable: false,
+  writable: true, // allows removing and re-adding FS within tests
   value: FS,
 });

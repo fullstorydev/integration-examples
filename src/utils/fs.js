@@ -28,6 +28,44 @@ export function hasFs() {
 }
 
 /**
+ * Samples a current user. If the user is randomly sampled, a cookie will be set on the user's browser.
+ * Subsequent invocations of `sample` will return the previously stored cookie value. Note this approach
+ * is subject to being cleared by user cache, vendor cookie limitations, etc.
+ * @param rate Whole number between 0 and 100 that indicates the sample rate (e.g. 10%)
+ * @param daysValid Number of days until the user is re-sampled; defaults to `30` days
+ * @returns true if the user should be sampled
+ */
+export function sample(rate, daysValid) {
+  const cookieName = '_fs_sample_user';
+
+  try {
+    // the sample function has successfully run previously
+    // NOTE simply checking the cookie name makes testing difficult; hence, check expected key:value pairs
+    if (document.cookie.indexOf(`${cookieName}=true`) > -1 || document.cookie.indexOf(`${cookieName}=false`) > -1) {
+      // sample if and only if the sample flag has been set to true
+      return document.cookie.indexOf(`${cookieName}=true`) > -1;
+    } else {
+      // decide if the user should be sampled and store the result
+      const shouldSample = (Math.random() < (rate / 100));
+
+      // calculate the expiration date of the cookie
+      const days = (daysValid !== undefined && daysValid > 0) ? daysValid : 30;
+      const date = new Date();
+      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+
+      // store the cookie
+      document.cookie = `${cookieName}=${shouldSample}; expires=${date.toGMTString()}; path=/`;
+
+      return shouldSample;
+    }
+  } catch (err) {
+    console.error(`FullStory unavailable, unable to sample user`);
+    // default to not sampling the user to prevent errors from over-sampling
+    return false;
+  }
+}
+
+/**
  * Waits until a `predicateFn` returns truthy and executes a `callbackFn`.
  * This function will exponentially backoff and wait up to 1024ms until `timeout` is reached.
  * @param predicateFn Tests if the `callbackFn` should run

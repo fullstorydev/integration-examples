@@ -95,7 +95,7 @@ describe('FullStory utilities', () => {
 
   test('sampling rate can be configured', () => {
     const rate = 10; // 10% sample rate
-    const margin = 2 * (100 / rate); // give it 2x margin of random error to ensure the test concludes
+    const margin = 2.5 * (100 / rate); // give it 2.5x margin of random error to ensure the test concludes
 
     let i = 0;
     while (i <= margin) {
@@ -104,7 +104,7 @@ describe('FullStory utilities', () => {
       } else {
         expect(document.cookie).toContain('_fs_sample_user=false');
         // manually clear the cookie that was set in the `sample` function
-        document.cookie = `_fs_sample_user=; path=/`;
+        document.cookie = '_fs_sample_user=; path=/';
         i++;
       }
     }
@@ -112,5 +112,39 @@ describe('FullStory utilities', () => {
     expect(i).toBeLessThan(margin);
     expect(document.cookie).toContain('_fs_sample_user=true');
     expect(document.cookie).not.toContain('_fs_sample_user=false');
+  });
+
+  test('existing _fs_sample_user cookie value should be re-used', () => {
+    const numTests = 100;
+    const rate = 10; // 10% sample rate
+
+    const samples = [];
+
+    document.cookie = '_fs_sample_user=true; path=/';
+
+    for (let i = 0; i < numTests; i += 1) {
+      samples[i] = sample(rate);
+    }
+
+    expect(samples).toContain(true);
+    expect(samples).not.toContain(false);
+
+    document.cookie = '_fs_sample_user=false; path=/';
+
+    for (let i = 0; i < numTests; i += 1) {
+      samples[i] = sample(rate);
+    }
+
+    expect(samples).toContain(false);
+    expect(samples).not.toContain(true);
+  });
+
+  test('invalid _fs_sample_user cookie re-samples', () => {
+    const rate = 10; // 10% sample rate
+
+    document.cookie = `_fs_sample_user=test; path=/`;
+
+    const shouldSample = sample(rate);
+    expect(document.cookie).toEqual(`_fs_sample_user=${shouldSample}`);
   });
 });

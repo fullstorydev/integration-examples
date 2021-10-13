@@ -41,9 +41,9 @@ export function sample(rate, daysValid) {
   try {
     // the sample function has successfully run previously
     // NOTE simply checking the cookie name makes testing difficult; hence, check expected key:value pairs
-    if (document.cookie.indexOf(`${cookieName}=true`) > -1 || document.cookie.indexOf(`${cookieName}=false`) > -1) {
+    if (document.cookie.indexOf(cookieName + '=true') > -1 || document.cookie.indexOf(cookieName + '=false') > -1) {
       // sample if and only if the sample flag has been set to true
-      return document.cookie.indexOf(`${cookieName}=true`) > -1;
+      return document.cookie.indexOf(cookieName + '=true') > -1;
     } else {
       // decide if the user should be sampled and store the result
       const shouldSample = (Math.random() < (rate / 100));
@@ -54,12 +54,12 @@ export function sample(rate, daysValid) {
       date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
 
       // store the cookie
-      document.cookie = `${cookieName}=${shouldSample}; expires=${date.toGMTString()}; path=/`;
+      document.cookie = cookieName + '=' + shouldSample + '; expires=' + date.toGMTString() + '; path=/';
 
       return shouldSample;
     }
   } catch (err) {
-    console.error(`FullStory unavailable, unable to sample user`);
+    console.error('FullStory unavailable, unable to sample user');
     // default to not sampling the user to prevent errors from over-sampling
     return false;
   }

@@ -1,5 +1,5 @@
 import '../__mocks__/fs';
-import { fs, hasFs, waitUntil } from '../src/utils/fs';
+import { fs, hasFs, sample, waitUntil } from '../src/utils/fs';
 
 const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
@@ -91,5 +91,26 @@ describe('FullStory utilities', () => {
 
     const start = Date.now();
     waitUntil(predicateFn, callbackFn, timeout, timeoutFn);
+  });
+
+  test('sampling rate can be configured', () => {
+    const rate = 10; // 10% sample rate
+    const margin = 2 * (100 / rate); // give it 2x margin of random error to ensure the test concludes
+
+    let i = 0;
+    while (i <= margin) {
+      if (sample(rate, 30)) {
+        break;
+      } else {
+        expect(document.cookie).toContain('_fs_sample_user=false');
+        // manually clear the cookie that was set in the `sample` function
+        document.cookie = `_fs_sample_user=; path=/`;
+        i++;
+      }
+    }
+
+    expect(i).toBeLessThan(margin);
+    expect(document.cookie).toContain('_fs_sample_user=true');
+    expect(document.cookie).not.toContain('_fs_sample_user=false');
   });
 });

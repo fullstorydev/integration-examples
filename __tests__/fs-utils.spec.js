@@ -1,5 +1,5 @@
 import '../__mocks__/fs';
-import { fs, hasFs, waitUntil } from '../src/utils/fs';
+import { fs, hasFs, sample, waitUntil } from '../src/utils/fs';
 
 const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
@@ -91,5 +91,74 @@ describe('FullStory utilities', () => {
 
     const start = Date.now();
     waitUntil(predicateFn, callbackFn, timeout, timeoutFn);
+  });
+
+  test('sampling rate can be configured', () => {
+    const rate = 10; // 10% sample rate
+    const numTests = 100 / rate;
+
+    let success = false;
+
+    for (let i = 0; i < numTests; i += 1) {
+      for (let j = 0; j < rate; j += 1) {
+        // check the random result
+        if (sample(rate, 30)) {
+          // if it's true, the user is sampled and mark success
+          success = true;
+        } else {
+          // if the user was not sampled, a cookie has been set
+          expect(document.cookie).toContain('_fs_sample_user=false');
+          // manually clear the cookie that was set in the `sample` function
+          // to allow for another random result
+          document.cookie = '_fs_sample_user=; path=/';
+        }
+      }
+    }
+
+    // after `numTests` the expectation is that the user *should have* been randomly sampled
+    expect(success).toEqual(true);
+    expect(document.cookie).toContain('_fs_sample_user=true');
+    expect(document.cookie).not.toContain('_fs_sample_user=false');
+  });
+
+  test('existing _fs_sample_user cookie value should be re-used', () => {
+    const numTests = 100;
+    const rate = 10; // 10% sample rate
+
+    const samples = [];
+
+    // manually set to cookie to sample the user
+    document.cookie = '_fs_sample_user=true; path=/';
+
+    // run a sufficient number of tests to overcome
+    for (let i = 0; i < numTests; i += 1) {
+      samples[i] = sample(rate);
+    }
+
+    // for every sample result, expect the existing cookie's value to be used
+    expect(samples).toContain(true);
+    expect(samples).not.toContain(false);
+
+    // do the exact same as the above but for the non-sample scenario
+    document.cookie = '_fs_sample_user=false; path=/';
+
+    for (let i = 0; i < numTests; i += 1) {
+      samples[i] = sample(rate);
+    }
+
+    expect(samples).toContain(false);
+    expect(samples).not.toContain(true);
+  });
+
+  test('invalid _fs_sample_user cookie re-samples', () => {
+    const rate = 10; // 10% sample rate
+
+    // set the existing cookie to something invalid (i.e. anything other than true or false)
+    document.cookie = `_fs_sample_user=test; path=/`;
+
+    // this will cause the `sample` function to run and randomly sample
+    // and overwrites the invalid cookie
+    const shouldSample = sample(rate);
+    expect(document.cookie).toEqual(`_fs_sample_user=${shouldSample}`);
   });
 });

@@ -31,4 +31,7 @@ function handleSubmitFeedback(event) {
   fs('event')('Medallia Feedback', payload);
 }
 
-window.addEventListener('MDigital_Submit_Feedback', handleSubmitFeedback);
+if (!window['_fs_medallia_feedback_registered']) {
+  window.addEventListener('MDigital_Submit_Feedback', handleSubmitFeedback);
+  window['_fs_medallia_feedback_registered'] = true;
+}

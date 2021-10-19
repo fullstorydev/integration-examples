@@ -1,22 +1,6 @@
 (function () {
   'use strict';
 
-  function _typeof(obj) {
-    "@babel/helpers - typeof";
-
-    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-      _typeof = function (obj) {
-        return typeof obj;
-      };
-    } else {
-      _typeof = function (obj) {
-        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-      };
-    }
-
-    return _typeof(obj);
-  }
-
   function fs(api) {
     if (!hasFs()) {
       return function () {
@@ -59,7 +43,7 @@
   function identify() {
     if (typeof window._fs_identity === 'function') {
       var userVars = window._fs_identity();
-      if (_typeof(userVars) === 'object' && typeof userVars.uid === 'string') {
+      if (typeof userVars === 'object' && typeof userVars.uid === 'string') {
         fs('setUserVars')(userVars);
         fs('restart')();
       } else {

@@ -19,22 +19,6 @@
     return window._fs_namespace && typeof window[window._fs_namespace] === 'function';
   }
 
-  function _typeof(obj) {
-    "@babel/helpers - typeof";
-
-    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-      _typeof = function (obj) {
-        return typeof obj;
-      };
-    } else {
-      _typeof = function (obj) {
-        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-      };
-    }
-
-    return _typeof(obj);
-  }
-
   function optimizely(api) {
     return api ? window.optimizely.get(api) : window.optimizely;
   }
@@ -58,7 +42,7 @@
     var list = [];
     var props = Object.getOwnPropertyNames(campaignsObj);
     for (var i = 0; i < props.length; i += 1) {
-      if (_typeof(campaignsObj[props[i]]) === 'object') {
+      if (typeof campaignsObj[props[i]] === 'object') {
         list.push(campaignsObj[props[i]]);
       }
     }

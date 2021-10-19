@@ -11,7 +11,10 @@
           "ie": "11",
           "ios": "8",
           "android": "40"
-        }
+        },
+        "exclude": [
+          "@babel/plugin-transform-typeof-symbol"
+        ]
       }
     ]
   ]

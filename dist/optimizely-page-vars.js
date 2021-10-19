@@ -4,13 +4,13 @@
   function fs(api) {
     if (!hasFs()) {
       return function () {
-        console.error(`FullStory unavailable, check your snippet or tag`);
-      }
+        console.error("FullStory unavailable, check your snippet or tag");
+      };
     } else {
       if (api && !window[window._fs_namespace][api]) {
         return function () {
-          console.error(`${window._fs_namespace}.${api} unavailable, update your snippet or verify the API call`);
-        }
+          console.error("".concat(window._fs_namespace, ".").concat(api, " unavailable, update your snippet or verify the API call"));
+        };
       }
       return api ? window[window._fs_namespace][api] : window[window._fs_namespace];
     }
@@ -19,15 +19,30 @@
     return window._fs_namespace && typeof window[window._fs_namespace] === 'function';
   }
 
+  function _typeof(obj) {
+    "@babel/helpers - typeof";
+
+    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+      _typeof = function (obj) {
+        return typeof obj;
+      };
+    } else {
+      _typeof = function (obj) {
+        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+      };
+    }
+
+    return _typeof(obj);
+  }
+
   function optimizely(api) {
     return api ? window.optimizely.get(api) : window.optimizely;
   }
   function getExperimentTuple(campaign, property, delimiter) {
-    return campaign.variation ? campaign.experiment[property].trim() + (delimiter || '=') + campaign.variation[property].trim() :
-      campaign.experiment[property].trim();
+    return campaign.variation ? campaign.experiment[property].trim() + (delimiter || '=') + campaign.variation[property].trim() : campaign.experiment[property].trim();
   }
   function campaignsToPageVars(campaignsObj) {
-    const campaignsList = campaignsToList(campaignsObj);
+    var campaignsList = campaignsToList(campaignsObj);
     return campaignsList.reduce(function (pageVars, campaign) {
       if (!campaign.isInCampaignHoldback) {
         pageVars.optimizely_experiment_names.push(getExperimentTuple(campaign, 'name'));
@@ -40,23 +55,25 @@
     });
   }
   function campaignsToList(campaignsObj) {
-    const list = [];
-    const props = Object.getOwnPropertyNames(campaignsObj);
-    for (let i = 0; i < props.length; i += 1) {
-      if (typeof campaignsObj[props[i]] === 'object') {
+    var list = [];
+    var props = Object.getOwnPropertyNames(campaignsObj);
+    for (var i = 0; i < props.length; i += 1) {
+      if (_typeof(campaignsObj[props[i]]) === 'object') {
         list.push(campaignsObj[props[i]]);
       }
     }
     return list;
   }
   function getActiveCampaigns() {
-    return optimizely('state').getCampaignStates({ isActive: true });
+    return optimizely('state').getCampaignStates({
+      isActive: true
+    });
   }
 
-  const utils = optimizely('utils');
+  var utils = optimizely('utils');
   utils.waitUntil(hasFs).then(function () {
-    const activeCampaigns = getActiveCampaigns();
-    const pageVars = campaignsToPageVars(activeCampaigns);
+    var activeCampaigns = getActiveCampaigns();
+    var pageVars = campaignsToPageVars(activeCampaigns);
     fs('setVars')('page', pageVars);
   });
 

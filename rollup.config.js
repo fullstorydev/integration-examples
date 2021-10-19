@@ -1,3 +1,4 @@
+import babel from '@rollup/plugin-babel';
 import cleanup from 'rollup-plugin-cleanup';
 import * as fs from 'fs';
 
@@ -9,7 +10,12 @@ const options = samples.map(filename => {
       file: __dirname + `/dist/${filename}`,
       format: 'iife'
     },
-    plugins: [cleanup()],
+    plugins: [
+      babel({
+        exclude: 'node_modules/**',
+        babelHelpers: 'bundled'
+      }),
+      cleanup()],
   };
 });
 

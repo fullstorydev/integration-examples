@@ -2,37 +2,47 @@
   'use strict';
 
   function fs(api) {
-    if (!window._fs_namespace) {
-      console.error(`FullStory unavailable, window["_fs_namespace"] must be defined`);
-      return undefined;
+    if (!hasFs()) {
+      return function () {
+        console.error("FullStory unavailable, check your snippet or tag");
+      };
     } else {
+      if (api && !window[window._fs_namespace][api]) {
+        return function () {
+          console.error("".concat(window._fs_namespace, ".").concat(api, " unavailable, update your snippet or verify the API call"));
+        };
+      }
       return api ? window[window._fs_namespace][api] : window[window._fs_namespace];
     }
   }
+  function hasFs() {
+    return window._fs_namespace && typeof window[window._fs_namespace] === 'function';
+  }
   function waitUntil(predicateFn, callbackFn, timeout, timeoutFn) {
-    let totalTime = 0;
-    let delay = 64;
-    const resultFn = function () {
+    var totalTime = 0;
+    var delay = 64;
+    var resultFn = function resultFn() {
       if (typeof predicateFn === 'function' && predicateFn()) {
         callbackFn();
         return;
       }
       delay = Math.min(delay * 2, 1024);
       if (totalTime > timeout) {
-        if (timeoutFn) {
+        if (typeof timeoutFn === 'function') {
           timeoutFn();
         }
+      } else {
+        totalTime += delay;
+        setTimeout(resultFn, delay);
       }
-      totalTime += delay;
-      setTimeout(resultFn, delay);
     };
     resultFn();
   }
 
-  const timeout = 2000;
+  var timeout = 2000;
   function identify() {
     if (typeof window._fs_identity === 'function') {
-      const userVars = window._fs_identity();
+      var userVars = window._fs_identity();
       if (typeof userVars === 'object' && typeof userVars.uid === 'string') {
         fs('setUserVars')(userVars);
         fs('restart')();

@@ -19,24 +19,20 @@
     return window._fs_namespace && typeof window[window._fs_namespace] === 'function';
   }
 
-  var keys = !window['_fs_integration_keys'] || window['_fs_integration_keys'].length === 0 ? ['tab'] : window['_fs_integration_keys'].map(function (key) {
-    return key.toLowerCase();
-  });
-  var keyCount = {};
-  function handleKeydown(event) {
+  var defaultKeys = ['Tab', 'ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'];
+  var keys = window['_fs_allowed_keys'] || defaultKeys;
+  function handleKeyup(event) {
     var key = event.key;
-    var lowercaseKey = key.toLowerCase();
-    if (keys.indexOf(lowercaseKey) > -1) {
-      keyCount[lowercaseKey] = keyCount[lowercaseKey] === undefined ? 1 : keyCount[lowercaseKey] + 1;
-      var payload = {};
-      payload["key_".concat(lowercaseKey, "_count_int")] = keyCount[lowercaseKey];
-      fs('setVars')('page', payload);
+    if (keys.indexOf(key) > -1) {
+      fs('event')('Key Pressed', {
+        key: key
+      });
     }
   }
   if (keys && keys.length > 0) {
-    document.addEventListener('keydown', handleKeydown);
+    document.addEventListener('keyup', handleKeyup);
   } else {
-    fs('log')('_fs_integration_keys is not configured');
+    fs('log')('_fs_allowed_keys is not configured');
   }
 
 }());

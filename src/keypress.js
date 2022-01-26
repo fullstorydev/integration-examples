@@ -13,7 +13,7 @@ const keys = window['_fs_allowed_keys'] || defaultKeys;
  * use cases related to page navigation.
  * @param event KeyBoard event
  */
-function handleKeydown(event) {
+function handleKeyup(event) {
   const { key } = event;
 
   // verify that the key should be recorded as a page var
@@ -26,7 +26,8 @@ function handleKeydown(event) {
 
 // if there are no keys of interest, skip registering an event listener
 if (keys && keys.length > 0) {
-  document.addEventListener('keydown', handleKeydown);
+  // use keyup since holding down a key will fire multiple events and cause rate limiting
+  document.addEventListener('keyup', handleKeyup);
 } else {
   fs('log')('_fs_allowed_keys is not configured');
 }

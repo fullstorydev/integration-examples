@@ -2,30 +2,31 @@ import '../__mocks__/fs';
 import { fs } from '../src/utils/fs';
 import '../src/keypress';
 
-// NOTE by default the integration listens for tab key events
-
-describe('Keydown Page Vars', () => {
-  test('record a keydown event as a page var', () => {
+describe('Keydown Custom Event', () => {
+  test('record a keydown custom event', () => {
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab' }));
 
-    expect(fs('setVars')).toBeCalled();
-    expect(fs('setVars').mock.calls[0][0]).toEqual('page');
-    expect(fs('setVars').mock.calls[0][1]).toEqual({ key_tab_count_int: 1 });
+    expect(fs('event')).toBeCalled();
+    expect(fs('event').mock.calls[0][0]).toEqual('Key Pressed');
+    expect(fs('event').mock.calls[0][1]).toEqual({ key: 'Tab' });
   });
 
-  test('ignored keys are not recorded as page vars', () => {
+  test('ignored keys are not recorded', () => {
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'a' }));
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Shift' }));
 
-    expect(fs('setVars')).toBeCalledTimes(1);
+    expect(fs('event')).toBeCalledTimes(1);
   });
 
-  test('subsequent keydown events increment the page var', () => {
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab' }));
+  test('arrow keys and the tab key are recorded by default', () => {
+    const defaultKeys = ['Tab', 'ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'];
 
-    expect(fs('setVars')).toBeCalledTimes(2);
+    for (let i = 0; i < defaultKeys.length; i += 1) {
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: defaultKeys[i] }));
 
-    expect(fs('setVars').mock.calls[1][0]).toEqual('page');
-    expect(fs('setVars').mock.calls[1][1]).toEqual({ key_tab_count_int: 2 });
+      expect(fs('event')).toBeCalledTimes(i + 2);
+      expect(fs('event').mock.calls[i + 1][0]).toEqual('Key Pressed');
+      expect(fs('event').mock.calls[i + 1][1]).toEqual({ key: defaultKeys[i] });
+    }
   });
 });

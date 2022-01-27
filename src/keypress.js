@@ -16,7 +16,7 @@ const keys = window['_fs_allowed_keys'] || defaultKeys;
 function handleKeyup(event) {
   const { key } = event;
 
-  // verify that the key should be recorded as a page var
+  // verify that the key should be recorded
   if (keys.indexOf(key) > -1) {
     fs('event')('Key Pressed', {
       key,

@@ -20,6 +20,7 @@
   }
   var _fsReadyFunctions = [];
   function proxiedFsReady() {
+    console.log("Calling proxied FsReady " + _fsReadyFunctions.length);
     for (var x = 0; x < _fsReadyFunctions.length; x++) {
       try {
         _fsReadyFunctions[x]();
@@ -33,7 +34,7 @@
       callbackFn();
       return;
     }
-    if (window._fs_ready) {
+    if (window._fs_ready && !(window._fs_ready === proxiedFsReady)) {
       _fsReadyFunctions.push(window._fs_ready);
     }
     _fsReadyFunctions.push(callbackFn);

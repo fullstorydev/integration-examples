@@ -167,16 +167,12 @@ test('test registerCallback variations', () => {
 
   // setup some functions we will be testing that they get called
   const fsReadyFirst = jest.fn( () => {
-      console.log( "Window _fs_ready first called");
   });
   const fsReadySecond = jest.fn( () => {
-    console.log( "Window _fs_ready second called");
   });
   const registerFsFunction = jest.fn( () => {
-    console.log( "Register Fs function called");
   });
   const recursiveRegisterFsFunction = jest.fn( () => {
-    console.log( "Recursive register Fs function called");
   });
 
   // add in our first function into the _fs_ready

@@ -6,7 +6,6 @@
   }
   var _fsReadyFunctions = [];
   function proxiedFsReady() {
-    console.log("Calling proxied FsReady " + _fsReadyFunctions.length);
     for (var x = 0; x < _fsReadyFunctions.length; x++) {
       try {
         _fsReadyFunctions[x]();

@@ -100,7 +100,6 @@ export function waitUntil(predicateFn, callbackFn, timeout, timeoutFn) {
 // array of all the fsReadyFunctions we need to call and proxy function to call them
 const _fsReadyFunctions = [];
 function proxiedFsReady() {
-  console.log( "Calling proxied FsReady " + _fsReadyFunctions.length )
   for( let x=0; x<_fsReadyFunctions.length; x++ ){
     try {
       _fsReadyFunctions[x]();

@@ -65,7 +65,7 @@
       elements[i].addEventListener('touchend', handleTouchend);
     }
   } else {
-    fs('_fs_swipe_selector is not configured');
+    fs('log')('_fs_swipe_selector is not configured');
   }
 
 }());

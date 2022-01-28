@@ -18,13 +18,43 @@
   function hasFs() {
     return window._fs_namespace && typeof window[window._fs_namespace] === 'function';
   }
+  var _fsReadyFunctions = [];
+  function proxiedFsReady() {
+    for (var x = 0; x < _fsReadyFunctions.length; x++) {
+      try {
+        _fsReadyFunctions[x]();
+      } catch (error) {
+        console.warn("Proxied _fs_ready function threw error", error);
+      }
+    }
+  }
+  function registerFsReady(callbackFn) {
+    if (hasFs()) {
+      callbackFn();
+      return;
+    }
+    if (window._fs_ready) {
+      _fsReadyFunctions.push(window._fs_ready);
+    }
+    _fsReadyFunctions.push(callbackFn);
+    Object.defineProperty(window, "_fs_ready", {
+      get: function get() {
+        return proxiedFsReady;
+      },
+      set: function set(someFunction) {
+        _fsReadyFunctions.push(someFunction);
+      }
+    });
+  }
 
   window.dataLayer = window.dataLayer || [];
   window.gtag = window.gtag || function () {
     dataLayer.push(arguments);
   };
-  window.gtag('event', 'optimize.callback', {
-    callback: optimizeCallback
+  registerFsReady(function () {
+    window.gtag('event', 'optimize.callback', {
+      callback: optimizeCallback
+    });
   });
   function optimizeCallback(value, name) {
     fs("event")("Experiment Viewed", {

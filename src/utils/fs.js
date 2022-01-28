@@ -96,3 +96,47 @@ export function waitUntil(predicateFn, callbackFn, timeout, timeoutFn) {
 
   resultFn();
 }
+
+// array of all the fsReadyFunctions we need to call and proxy function to call them
+const _fsReadyFunctions = [];
+function proxiedFsReady() {
+  console.log( "Calling proxied FsReady " + _fsReadyFunctions.length )
+  for( let x=0; x<_fsReadyFunctions.length; x++ ){
+    try {
+      _fsReadyFunctions[x]();
+    }catch( error ){
+      console.warn( "Proxied _fs_ready function threw error", error );
+    }
+  }
+}
+
+/**
+ * Add an _fs_ready function on window, but in a way that honors existing ones that are setup
+ * and ones that might be setup afterwards
+ * @param callbackFn Function to call when _fs_ready would be called
+ *
+ */
+export function registerFsReady( callbackFn ) {
+  // first if we already have fullstory, then call it back
+  if( hasFs() ){
+    callbackFn();
+    return;
+  }
+  // if there is a window _fs_ready already, push it into the array
+  // unless the function is already our proxied version
+  if( window._fs_ready && !(window._fs_ready === proxiedFsReady) ) {
+    _fsReadyFunctions.push( window._fs_ready );
+  }
+  // make sure to push the new function into the array to be called
+  _fsReadyFunctions.push( callbackFn );
+  // define the _fs_ready property on window, wrapping it with our proxy
+  // and intercepting set calls to push them onto the stack
+  Object.defineProperty( window, "_fs_ready", {
+    get() {
+      return proxiedFsReady;
+    },
+    set( someFunction ) {
+      _fsReadyFunctions.push( someFunction );
+    }
+  });
+}

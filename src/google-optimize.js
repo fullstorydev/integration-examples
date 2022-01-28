@@ -1,4 +1,4 @@
-import { fs } from './utils/fs';
+import { fs, registerFsReady } from './utils/fs';
 
 // make sure dataLayer is available
 window.dataLayer = window.dataLayer || [];
@@ -8,10 +8,12 @@ window.gtag = window.gtag || function() {
   dataLayer.push(arguments);
 };
 
-// register the optimizeCallback function for google optimize calls
-window.gtag('event', 'optimize.callback', {
-  callback: optimizeCallback
-});
+registerFsReady(
+  () => {
+    window.gtag('event', 'optimize.callback', {
+      callback: optimizeCallback
+    })
+  });
 
 // take the optimize callback and turn it into an FS event
 function optimizeCallback( value, name ) {

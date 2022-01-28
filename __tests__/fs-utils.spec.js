@@ -1,5 +1,5 @@
 import '../__mocks__/fs';
-import { fs, hasFs, sample, waitUntil } from '../src/utils/fs';
+import { fs, hasFs, sample, waitUntil, registerFsReady } from '../src/utils/fs';
 
 const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
@@ -161,4 +161,42 @@ describe('FullStory utilities', () => {
     const shouldSample = sample(rate);
     expect(document.cookie).toEqual(`_fs_sample_user=${shouldSample}`);
   });
+});
+
+test('test registerCallback variations', () => {
+
+  // setup some functions we will be testing that they get called
+  const fsReadyFirst = jest.fn( () => {
+      console.log( "Window _fs_ready first called");
+  });
+  const fsReadySecond = jest.fn( () => {
+    console.log( "Window _fs_ready second called");
+  });
+  const registerFsFunction = jest.fn( () => {
+    console.log( "Register Fs function called");
+  });
+  const recursiveRegisterFsFunction = jest.fn( () => {
+    console.log( "Recursive register Fs function called");
+  });
+
+  // add in our first function into the _fs_ready
+  window._fs_ready = fsReadyFirst;
+  // make sure hasFs will return false
+  window._fs_namespace = 'JEST';
+  // register a function
+  registerFsReady( registerFsFunction );
+  // register a second function (should support recursive)
+  registerFsReady( recursiveRegisterFsFunction );
+  // add in another _fs_ready function (should use proxy)
+  window._fs_ready = fsReadySecond;
+
+  // call _fs_ready
+  window._fs_ready();
+
+  // make sure all four functions get called
+  expect( fsReadyFirst ).toBeCalled();
+  expect( fsReadySecond ).toBeCalled();
+  expect( registerFsFunction ).toBeCalled();
+  expect( recursiveRegisterFsFunction ).toBeCalled();
+
 });

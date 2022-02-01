@@ -11,24 +11,24 @@ export function iterateWithRate( targetRatePerSecond, numSeconds, iterationTimeE
   let startingTime = new Date().getTime();
   let totalIterations = targetRatePerSecond * numSeconds;
   let sleepPerIteration = ((1000 * numSeconds) - (totalIterations * iterationTimeEstimate)) / totalIterations;
-  function iterationsComplete(){
-    let endingTime = new Date().getTime();
-    let totalTime = endingTime - startingTime;
-    let actualRate = totalIterations / (totalTime/1000);
+  function iterationsComplete( actualRate, totalTime ){
     console.log( "TotalIterations=" + totalIterations + " sleepPerIteration=" + sleepPerIteration);
     console.log( "Total time=" + totalTime + " actualRate=" + actualRate );
   }
   callbackFn = callbackFn || iterationsComplete;
-  _nextIterate( 1, sleepPerIteration, totalIterations, iterateFn, callbackFn );
+  _nextIterate( 1, sleepPerIteration, totalIterations, startingTime, iterateFn, callbackFn );
 
 }
-function _nextIterate( iteration, sleepPerIteration, totalIterations, iterateFn, callbackFn ){
+function _nextIterate( iteration, sleepPerIteration, totalIterations, startingTime, iterateFn, callbackFn ){
   iterateFn( iteration );
   iteration = iteration + 1;
   if( iteration <= totalIterations ) {
-    setTimeout(() => { _nextIterate( iteration, sleepPerIteration, totalIterations, iterateFn, callbackFn )}, sleepPerIteration);
+    setTimeout(() => { _nextIterate( iteration, sleepPerIteration, totalIterations, startingTime, iterateFn, callbackFn )}, sleepPerIteration);
   }
   else {
-    callbackFn();
+    let endingTime = new Date().getTime();
+    let totalTime = endingTime - startingTime;
+    let actualRate = totalIterations / (totalTime/1000);
+    callbackFn( actualRate, totalTime );
   }
 }

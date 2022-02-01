@@ -37,25 +37,25 @@
     var startingTime = new Date().getTime();
     var totalIterations = targetRatePerSecond * numSeconds;
     var sleepPerIteration = (1000 * numSeconds - totalIterations * iterationTimeEstimate) / totalIterations;
-    function iterationsComplete() {
-      var endingTime = new Date().getTime();
-      var totalTime = endingTime - startingTime;
-      var actualRate = totalIterations / (totalTime / 1000);
+    function iterationsComplete(actualRate, totalTime) {
       console.log("TotalIterations=" + totalIterations + " sleepPerIteration=" + sleepPerIteration);
       console.log("Total time=" + totalTime + " actualRate=" + actualRate);
     }
     callbackFn = callbackFn || iterationsComplete;
-    _nextIterate(1, sleepPerIteration, totalIterations, iterateFn, callbackFn);
+    _nextIterate(1, sleepPerIteration, totalIterations, startingTime, iterateFn, callbackFn);
   }
-  function _nextIterate(iteration, sleepPerIteration, totalIterations, iterateFn, callbackFn) {
+  function _nextIterate(iteration, sleepPerIteration, totalIterations, startingTime, iterateFn, callbackFn) {
     iterateFn(iteration);
     iteration = iteration + 1;
     if (iteration <= totalIterations) {
       setTimeout(function () {
-        _nextIterate(iteration, sleepPerIteration, totalIterations, iterateFn, callbackFn);
+        _nextIterate(iteration, sleepPerIteration, totalIterations, startingTime, iterateFn, callbackFn);
       }, sleepPerIteration);
     } else {
-      callbackFn();
+      var endingTime = new Date().getTime();
+      var totalTime = endingTime - startingTime;
+      var actualRate = totalIterations / (totalTime / 1000);
+      callbackFn(actualRate, totalTime);
     }
   }
 

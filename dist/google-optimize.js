@@ -18,6 +18,9 @@
   function hasFs() {
     return window._fs_namespace && typeof window[window._fs_namespace] === 'function';
   }
+  function isFsReady() {
+    return hasFs() && typeof window[window._fs_namespace].getCurrentSessionURL === 'function';
+  }
   var _fsReadyFunctions = [];
   function proxiedFsReady() {
     for (var x = 0; x < _fsReadyFunctions.length; x++) {
@@ -29,7 +32,7 @@
     }
   }
   function registerFsReady(callbackFn) {
-    if (hasFs()) {
+    if (isFsReady()) {
       callbackFn();
       return;
     }

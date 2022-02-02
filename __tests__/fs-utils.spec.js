@@ -1,5 +1,5 @@
 import '../__mocks__/fs';
-import { fs, hasFs, sample, waitUntil, registerFsReady } from '../src/utils/fs';
+import {fs, hasFs, sample, waitUntil, registerFsReady, isFsReady} from '../src/utils/fs';
 
 const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
@@ -35,6 +35,22 @@ describe('FullStory utilities', () => {
     expect(console.error).toBeCalledTimes(2);
     expect(console.error).toHaveBeenLastCalledWith(
       `${window._fs_namespace}.newFeature unavailable, update your snippet or verify the API call`);
+  });
+
+  test('utility function checks isFsReady is available', () => {
+    // override the mock's `_fs_namespace` to test the failure case
+    window._fs_namespace = 'JEST';
+    expect(isFsReady()).toBeFalsy();
+    // set it back to the mock's default `_fs_namespace`
+    window._fs_namespace = 'FS';
+    expect(isFsReady()).toBeTruthy();
+    // override getCurrentSessionURL to not be a function
+    let originalFunction = window[window._fs_namespace].getCurrentSessionURL;
+    window[window._fs_namespace].getCurrentSessionURL = undefined;
+    expect(isFsReady()).toBeFalsy();
+    // put it back
+    window[window._fs_namespace].getCurrentSessionURL = originalFunction;
+    expect(isFsReady()).toBeTruthy();
   });
 
   test('Recording APIs can be called', () => {

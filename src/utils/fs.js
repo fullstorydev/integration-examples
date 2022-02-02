@@ -28,6 +28,14 @@ export function hasFs() {
 }
 
 /**
+ * Test if the FullStory recording API is ready to go.  Adds in that getCurrentSessionURL is available to hasFs().
+ * @returns {*|boolean} True if ready to go otherwise False
+ */
+export function isFsReady() {
+  return hasFs() && typeof window[window._fs_namespace].getCurrentSessionURL === 'function';
+}
+
+/**
  * Samples a current user. If the user is randomly sampled, a cookie will be set on the user's browser.
  * Subsequent invocations of `sample` will return the previously stored cookie value. Note this approach
  * is subject to being cleared by user cache, vendor cookie limitations, etc.
@@ -117,7 +125,7 @@ function proxiedFsReady() {
  */
 export function registerFsReady( callbackFn ) {
   // first if we already have fullstory, then call it back
-  if( hasFs() ){
+  if( isFsReady() ){
     callbackFn();
     return;
   }

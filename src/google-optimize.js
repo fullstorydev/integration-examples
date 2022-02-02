@@ -17,6 +17,8 @@ registerFsReady(
 
 // take the optimize callback and turn it into an FS event
 function optimizeCallback( value, name ) {
+  // "Experiment Viewed" was selected as of the time of this addition, it allows for a higher
+  // rate limit on calls.  Instead of 10/second 30/minute default, it allows 40/second 60/minute
   fs( "event" )( "Experiment Viewed", {
     experiment_id: name,
     experiment_value: value

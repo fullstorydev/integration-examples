@@ -28,11 +28,14 @@ export function hasFs() {
 }
 
 /**
- * Test if the FullStory recording API is ready to go.  Adds in that getCurrentSessionURL is available to hasFs().
+ *
+ * Checks if the snippet was able to successfully communicate with FullStory.
+ * Either recording has started and a session URL exists or is null if the org
+ * is over quota or a domain restriction exists.
  * @returns {*|boolean} True if ready to go otherwise False
  */
 export function isFsReady() {
-  return hasFs() && typeof window[window._fs_namespace].getCurrentSessionURL === 'function';
+  return hasFs() && (typeof window[window._fs_namespace].getCurrentSessionURL === 'function');
 }
 
 /**

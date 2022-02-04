@@ -50,7 +50,7 @@ describe('Cookie utilities', () => {
       "anotherCookie" : "foo",
       "additionalCookie" : "bar"
     });
-    expect(fs("log")).toHaveBeenLastCalledWith('warn', 'Cookie missingCookie was not found when trying to set it as a var');
+    expect(fs("log")).toHaveBeenLastCalledWith('warn', 'Cookie missingCookie was not found when trying to get it in a lookup');
   });
 
   test( 'Basic setCookiesAsPageVar test', () => {
@@ -81,6 +81,6 @@ describe('Cookie utilities', () => {
       "anotherCookie" : "foo",
       "additionalCookie" : "bar"
     });
-    expect(fs("log")).toHaveBeenLastCalledWith('warn', 'Cookie missingCookie was not found when trying to set it as a var');
+    expect(fs("log")).toHaveBeenLastCalledWith('warn', 'Cookie missingCookie was not found when trying to get it in a lookup');
   });
 });

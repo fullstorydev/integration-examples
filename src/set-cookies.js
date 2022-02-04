@@ -14,7 +14,7 @@ function getCookiesAsLookup( cookieNames ){
       userVars[cookieNames[i]] = cookies[cookieNames[i]];
     }
     else {
-      fs( "log" )( "warn", "Cookie " + cookieNames[i] + " was not found when trying to set it as a var" );
+      fs( "log" )( "warn", "Cookie " + cookieNames[i] + " was not found when trying to get it in a lookup" );
     }
   }
   return userVars;

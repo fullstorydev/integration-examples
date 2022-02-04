@@ -22,7 +22,7 @@ function getCookiesAsLookup( cookieNames ){
 
 /**
  * Set fs userVars based on cookie names.  Will be set as cookie.name=cookie.value
- * If cookie is not available, it will not be in the userVars, and a warning will be printed
+ * If cookie is not available, it will not be in the userVars, and a warning will be logged to fs(log)
  * Also note that userVars in FullStory cannot start with _ character, so make sure your cookies
  * don't start with that otherwise they won't appear.
  * @param cookieNames An array of cookie names to set as values
@@ -34,7 +34,7 @@ function setCookiesAsUserVars( cookieNames ){
 
 /**
  * Set fs page Vars based on cookie names.  Will be set as cookie.name=cookie.value
- * If cookie is not available, it will not be in the page Vars, and a warning will be printed
+ * If cookie is not available, it will not be in the page Vars, and a warning will be logged to fs(log)
  * @param cookieNames An array of cookie names to set as page values
  */
 function setCookiesAsPageVars( cookieNames ){

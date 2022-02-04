@@ -1,6 +1,25 @@
 import {fs, registerFsReady} from "./utils/fs";
 import {getAvailableCookies} from "./utils/cookie";
 
+
+/**
+ * Utility function to get cookies as a lookup.
+ * @param cookieNames An array of cookie names to return as cookieName=value on return object
+ */
+function getCookiesAsLookup( cookieNames ){
+  let cookies = getAvailableCookies();
+  let userVars = {};
+  for( let i=0; i<cookieNames.length; i++ ){
+    if( cookieNames[i] in cookies ){
+      userVars[cookieNames[i]] = cookies[cookieNames[i]];
+    }
+    else {
+      fs( "log" )( "warn", "Cookie " + cookieNames[i] + " was not found when trying to set it as a var" );
+    }
+  }
+  return userVars;
+}
+
 /**
  * Set fs userVars based on cookie names.  Will be set as cookie.name=cookie.value
  * If cookie is not available, it will not be in the userVars, and a warning will be printed
@@ -9,17 +28,18 @@ import {getAvailableCookies} from "./utils/cookie";
  * @param cookieNames An array of cookie names to set as values
  */
 function setCookiesAsUserVars( cookieNames ){
-  let cookies = getAvailableCookies();
-  let userVars = {};
-  for( let i=0; i<cookieNames.length; i++ ){
-    if( cookieNames[i] in cookies ){
-      userVars[cookieNames[i]] = cookies[cookieNames[i]];
-    }
-    else {
-      fs( "log" )( "warn", "Cookie " + cookieNames[i] + " was not found when trying to setCookiesAsUserVars call" );
-    }
-  }
+  let userVars = getCookiesAsLookup( cookieNames );
   fs( "setUserVars" )( userVars );
+}
+
+/**
+ * Set fs page Vars based on cookie names.  Will be set as cookie.name=cookie.value
+ * If cookie is not available, it will not be in the page Vars, and a warning will be printed
+ * @param cookieNames An array of cookie names to set as page values
+ */
+function setCookiesAsPageVars( cookieNames ){
+  let pageVars = getCookiesAsLookup( cookieNames );
+  fs( "setVars" )( "page", pageVars );
 }
 
 /**
@@ -31,5 +51,8 @@ function setCookiesAsUserVars( cookieNames ){
 registerFsReady( () => {
   if( window._fs_cookies_setUserVar ){
     setCookiesAsUserVars( window._fs_cookies_setUserVar );
+  }
+  if( window._fs_cookies_setPageVar ){
+    setCookiesAsPageVars( window._fs_cookies_setPageVar );
   }
 });

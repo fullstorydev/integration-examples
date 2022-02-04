@@ -62,21 +62,32 @@
     return cookies;
   }
 
-  function setCookiesAsUserVars(cookieNames) {
+  function getCookiesAsLookup(cookieNames) {
     var cookies = getAvailableCookies();
     var userVars = {};
     for (var i = 0; i < cookieNames.length; i++) {
       if (cookieNames[i] in cookies) {
         userVars[cookieNames[i]] = cookies[cookieNames[i]];
       } else {
-        console.warn("Cookie " + cookieNames[i] + " was not found");
+        fs("log")("warn", "Cookie " + cookieNames[i] + " was not found when trying to set it as a var");
       }
     }
+    return userVars;
+  }
+  function setCookiesAsUserVars(cookieNames) {
+    var userVars = getCookiesAsLookup(cookieNames);
     fs("setUserVars")(userVars);
+  }
+  function setCookiesAsPageVars(cookieNames) {
+    var pageVars = getCookiesAsLookup(cookieNames);
+    fs("setVars")("page", pageVars);
   }
   registerFsReady(function () {
     if (window._fs_cookies_setUserVar) {
       setCookiesAsUserVars(window._fs_cookies_setUserVar);
+    }
+    if (window._fs_cookies_setPageVar) {
+      setCookiesAsPageVars(window._fs_cookies_setPageVar);
     }
   });
 

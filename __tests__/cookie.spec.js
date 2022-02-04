@@ -50,6 +50,37 @@ describe('Cookie utilities', () => {
       "anotherCookie" : "foo",
       "additionalCookie" : "bar"
     });
-    expect(fs("log")).toHaveBeenLastCalledWith('warn', 'Cookie missingCookie was not found when trying to setCookiesAsUserVars call');
+    expect(fs("log")).toHaveBeenLastCalledWith('warn', 'Cookie missingCookie was not found when trying to set it as a var');
+  });
+
+  test( 'Basic setCookiesAsPageVar test', () => {
+    // test pulling out one cookie
+    document.cookie = 'anotherCookie=foo;additionalCookie=bar';
+    window._fs_cookies_setPageVar = ["anotherCookie"];
+    window._fs_ready();
+    expect(fs( "setVars" )).toHaveBeenLastCalledWith( "page", {
+      "anotherCookie" : "foo"
+    });
+    // test pulling out second cookie
+    window._fs_cookies_setPageVar = [ "additionalCookie"];
+    window._fs_ready();
+    expect(fs("setVars")).toHaveBeenLastCalledWith( "page", {
+      "additionalCookie" : "bar"
+    });
+    // test pulling out two cookies
+    window._fs_cookies_setPageVar = [ "anotherCookie", "additionalCookie"];
+    window._fs_ready();
+    expect(fs("setVars")).toHaveBeenLastCalledWith( "page", {
+      "anotherCookie" : "foo",
+      "additionalCookie" : "bar"
+    });
+    // test pulling out missing cookie
+    window._fs_cookies_setPageVar = [ "anotherCookie", "additionalCookie", "missingCookie"];
+    window._fs_ready();
+    expect(fs("setVars")).toHaveBeenLastCalledWith( "page", {
+      "anotherCookie" : "foo",
+      "additionalCookie" : "bar"
+    });
+    expect(fs("log")).toHaveBeenLastCalledWith('warn', 'Cookie missingCookie was not found when trying to set it as a var');
   });
 });

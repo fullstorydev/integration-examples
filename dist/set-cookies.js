@@ -61,6 +61,7 @@
     }
     return cookies;
   }
+
   function setCookiesAsUserVars(cookieNames) {
     var cookies = getAvailableCookies();
     var userVars = {};
@@ -73,7 +74,6 @@
     }
     fs("setUserVars")(userVars);
   }
-
   registerFsReady(function () {
     if (window._fs_cookies_setUserVar) {
       setCookiesAsUserVars(window._fs_cookies_setUserVar);

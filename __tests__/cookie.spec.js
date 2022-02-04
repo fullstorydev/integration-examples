@@ -1,14 +1,12 @@
-import '../__mocks__/fs.js';
+import {makeFSReady} from "../__mocks__/fs";
 import '../__mocks__/cookie.js';
-import {getAvailableCookies, setCookiesAsUserVars} from "../src/utils/cookie";
+import {getAvailableCookies} from "../src/utils/cookie";
 import {fs} from '../src/utils/fs';
-
-const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+import '../src/set-cookies';
 
 describe('Cookie utilities', () => {
-  beforeEach(() => {
-    consoleSpy.mockClear()
-  });
+
+  makeFSReady();
 
   test('Basic getAvailableCookies test', () => {
     // test two cookies coming back
@@ -28,30 +26,30 @@ describe('Cookie utilities', () => {
     // test pulling out one cookie
     document.cookie = 'anotherCookie=foo;additionalCookie=bar';
     window._fs_cookies_setUserVar = ["anotherCookie"];
-    setCookiesAsUserVars( window._fs_cookies_setUserVar );
+    window._fs_ready();
     expect(fs( "setUserVars" )).toHaveBeenLastCalledWith( {
       "anotherCookie" : "foo"
     });
     // test pulling out second cookie
     window._fs_cookies_setUserVar = [ "additionalCookie"];
-    setCookiesAsUserVars( window._fs_cookies_setUserVar );
+    window._fs_ready();
     expect(fs("setUserVars")).toHaveBeenLastCalledWith( {
       "additionalCookie" : "bar"
     });
     // test pulling out two cookies
     window._fs_cookies_setUserVar = [ "anotherCookie", "additionalCookie"];
-    setCookiesAsUserVars( window._fs_cookies_setUserVar );
+    window._fs_ready();
     expect(fs("setUserVars")).toHaveBeenLastCalledWith( {
       "anotherCookie" : "foo",
       "additionalCookie" : "bar"
     });
     // test pulling out missing cookie
     window._fs_cookies_setUserVar = [ "anotherCookie", "additionalCookie", "missingCookie"];
-    setCookiesAsUserVars( window._fs_cookies_setUserVar );
+    window._fs_ready();
     expect(fs("setUserVars")).toHaveBeenLastCalledWith( {
       "anotherCookie" : "foo",
       "additionalCookie" : "bar"
     });
-    expect(console.warn).toHaveBeenLastCalledWith('Cookie missingCookie was not found');
+    expect(fs("log")).toHaveBeenLastCalledWith('warn', 'Cookie missingCookie was not found when trying to setCookiesAsUserVars call');
   });
 });

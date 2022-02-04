@@ -1,5 +1,6 @@
 import '../__mocks__/fs';
 import {fs, hasFs, sample, waitUntil, registerFsReady, isFsReady} from '../src/utils/fs';
+import {makeFSReady} from "../__mocks__/fs";
 
 const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
@@ -38,6 +39,7 @@ describe('FullStory utilities', () => {
   });
 
   test('utility function checks isFsReady is available', () => {
+    makeFSReady();
     // override the mock's `_fs_namespace` to test the failure case
     window._fs_namespace = 'JEST';
     expect(isFsReady()).toBeFalsy();

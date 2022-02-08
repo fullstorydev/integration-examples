@@ -83,4 +83,35 @@ describe('Cookie utilities', () => {
     });
     expect(fs("log")).toHaveBeenLastCalledWith('warn', 'Cookie missingCookie was not found when trying to get it in a lookup');
   });
+
+  test( 'Basic sendCookiesAsEvent test', () => {
+    // test pulling out one cookie
+    document.cookie = 'anotherCookie=foo;additionalCookie=bar';
+    window._fs_cookies_event = ["anotherCookie"];
+    window._fs_ready();
+    expect(fs( "event" )).toHaveBeenLastCalledWith( "Cookie Event", {
+      "anotherCookie" : "foo"
+    });
+    // test pulling out second cookie
+    window._fs_cookies_event = [ "additionalCookie"];
+    window._fs_ready();
+    expect(fs("event")).toHaveBeenLastCalledWith( "Cookie Event", {
+      "additionalCookie" : "bar"
+    });
+    // test pulling out two cookies
+    window._fs_cookies_event = [ "anotherCookie", "additionalCookie"];
+    window._fs_ready();
+    expect(fs("event")).toHaveBeenLastCalledWith( "Cookie Event", {
+      "anotherCookie" : "foo",
+      "additionalCookie" : "bar"
+    });
+    // test pulling out missing cookie
+    window._fs_cookies_event = [ "anotherCookie", "additionalCookie", "missingCookie"];
+    window._fs_ready();
+    expect(fs("event")).toHaveBeenLastCalledWith( "Cookie Event", {
+      "anotherCookie" : "foo",
+      "additionalCookie" : "bar"
+    });
+    expect(fs("log")).toHaveBeenLastCalledWith('warn', 'Cookie missingCookie was not found when trying to get it in a lookup');
+  });
 });

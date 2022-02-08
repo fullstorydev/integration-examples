@@ -69,7 +69,7 @@
       if (cookieNames[i] in cookies) {
         userVars[cookieNames[i]] = cookies[cookieNames[i]];
       } else {
-        fs("log")("warn", "Cookie " + cookieNames[i] + " was not found when trying to set it as a var");
+        fs("log")("warn", "Cookie " + cookieNames[i] + " was not found when trying to get it in a lookup");
       }
     }
     return userVars;
@@ -82,12 +82,19 @@
     var pageVars = getCookiesAsLookup(cookieNames);
     fs("setVars")("page", pageVars);
   }
+  function sendCookiesAsEvent(cookieNames) {
+    var eventAttributes = getCookiesAsLookup(cookieNames);
+    fs("event")("Cookie Event", eventAttributes);
+  }
   registerFsReady(function () {
     if (window._fs_cookies_setUserVar) {
       setCookiesAsUserVars(window._fs_cookies_setUserVar);
     }
     if (window._fs_cookies_setPageVar) {
       setCookiesAsPageVars(window._fs_cookies_setPageVar);
+    }
+    if (window._fs_cookies_event) {
+      sendCookiesAsEvent(window._fs_cookies_event);
     }
   });
 

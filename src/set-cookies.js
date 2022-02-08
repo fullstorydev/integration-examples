@@ -43,6 +43,16 @@ function setCookiesAsPageVars( cookieNames ){
 }
 
 /**
+ * Send fs events based on cookie names.  Will be sent as "Cookie Event" with cookie.name=cookie.value
+ * If cookie is not available, it will not be in the event, and a warning will be logged to fs(log)
+ * @param cookieNames An array of cookie names to send as attributes on Cookie Event
+ */
+function sendCookiesAsEvent( cookieNames ){
+  let eventAttributes = getCookiesAsLookup( cookieNames );
+  fs( "event" )( "Cookie Event", eventAttributes );
+}
+
+/**
  *
  * set cookie names as user variables depending on window._fs_cookies_setUserVar
  * Please note you must set the window._fs_cookies_setUserVar variable for this to have effect
@@ -54,5 +64,8 @@ registerFsReady( () => {
   }
   if( window._fs_cookies_setPageVar ){
     setCookiesAsPageVars( window._fs_cookies_setPageVar );
+  }
+  if( window._fs_cookies_event ){
+    sendCookiesAsEvent( window._fs_cookies_event );
   }
 });

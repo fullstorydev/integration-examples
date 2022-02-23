@@ -12,10 +12,13 @@ FS.restart = jest.fn();
 FS.setVars = jest.fn();
 FS.setUserVars = jest.fn();
 FS.shutdown = jest.fn();
-FS.getCurrentSessionURL = jest.fn();
 
 // NOTE this will always use the exemplar `FS` namespace
 Object.defineProperty(window, 'FS', {
   writable: true, // allows removing and re-adding FS within tests
   value: FS,
 });
+
+export function makeFSReady() {
+  FS.getCurrentSessionURL = jest.fn();
+}

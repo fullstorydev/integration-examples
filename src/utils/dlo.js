@@ -1,3 +1,5 @@
+import {insertScriptIntoDocument} from "./browser";
+
 /**
  * Register dlo rules based on a window expando variable name.  If DLO is
  * already on the page, registerRule will be called.  Otherwise, DLO
@@ -22,16 +24,6 @@ export function registerRules( ruleExpando ){
     window['_dlo_readOnLoad'] = true;
     window['_dlo_validateRules'] = true;
     window['_dlo_logLevel'] = 1;
-    (function (d, script) {
-      script = d.createElement('script');
-      script.type = 'text/javascript';
-      script.async = true;
-      script.src = 'https://edge.fullstory.com/datalayer/v1/latest.js';
-      d.getElementsByTagName('head')[0].appendChild(script);
-    }(document));
+    insertScriptIntoDocument('https://edge.fullstory.com/datalayer/v1/latest.js');
   }
-}
-// automatically load the specific window['_dlo_test_rules'] rules if they are present
-if( window['_dlo_test_rules'] ){
-  registerRules( 'dlo_test_rules' );
 }

@@ -1,14 +1,8 @@
-import {registerRules} from "../src/dlo";
+import "../__mocks__/dlo"
+import "../src/test-dlo-rules";
+import {registerRules} from "../src/utils/dlo";
 
 describe('DLO', () => {
-  window['_dlo_rules_testing' ] = [
-    {
-      "id": "fs-event-adobe-pageID",
-      "source": "s[(prop1,prop5,prop6,prop33)]",
-      "destination": "fakeOutput"
-    }
-  ];
-  registerRules( '_dlo_rules_testing' );
 
   test('make sure script gets loaded', () => {
     expect( window['_dlo_previewMode'] ).toEqual( true );
@@ -19,7 +13,7 @@ describe('DLO', () => {
 
   test('make sure register rule gets called', () => {
     window['_dlo_observer'] = {};
-    window['_dlo_observer'] = {};
+    window['_dlo_observer'].config = {};
     window['_dlo_observer'].registerRule = jest.fn();
     registerRules( '_dlo_rules_testing' );
     expect( window['_dlo_observer'].registerRule).toHaveBeenLastCalledWith(window['_dlo_rules_testing'][0] );

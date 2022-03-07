@@ -1,5 +1,6 @@
 import '../__mocks__/fs';
-import { fs, hasFs, sample, waitUntil } from '../src/utils/fs';
+import {fs, hasFs, sample, waitUntil, registerFsReady, isFsReady} from '../src/utils/fs';
+import {makeFSReady} from "../__mocks__/fs";
 
 const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
@@ -35,6 +36,23 @@ describe('FullStory utilities', () => {
     expect(console.error).toBeCalledTimes(2);
     expect(console.error).toHaveBeenLastCalledWith(
       `${window._fs_namespace}.newFeature unavailable, update your snippet or verify the API call`);
+  });
+
+  test('utility function checks isFsReady is available', () => {
+    makeFSReady();
+    // override the mock's `_fs_namespace` to test the failure case
+    window._fs_namespace = 'JEST';
+    expect(isFsReady()).toBeFalsy();
+    // set it back to the mock's default `_fs_namespace`
+    window._fs_namespace = 'FS';
+    expect(isFsReady()).toBeTruthy();
+    // override getCurrentSessionURL to not be a function
+    let originalFunction = window[window._fs_namespace].getCurrentSessionURL;
+    window[window._fs_namespace].getCurrentSessionURL = undefined;
+    expect(isFsReady()).toBeFalsy();
+    // put it back
+    window[window._fs_namespace].getCurrentSessionURL = originalFunction;
+    expect(isFsReady()).toBeTruthy();
   });
 
   test('Recording APIs can be called', () => {
@@ -161,4 +179,38 @@ describe('FullStory utilities', () => {
     const shouldSample = sample(rate);
     expect(document.cookie).toEqual(`_fs_sample_user=${shouldSample}`);
   });
+});
+
+test('test registerCallback variations', () => {
+
+  // setup some functions we will be testing that they get called
+  const fsReadyFirst = jest.fn( () => {
+  });
+  const fsReadySecond = jest.fn( () => {
+  });
+  const registerFsFunction = jest.fn( () => {
+  });
+  const recursiveRegisterFsFunction = jest.fn( () => {
+  });
+
+  // add in our first function into the _fs_ready
+  window._fs_ready = fsReadyFirst;
+  // make sure hasFs will return false
+  window._fs_namespace = 'JEST';
+  // register a function
+  registerFsReady( registerFsFunction );
+  // register a second function (should support recursive)
+  registerFsReady( recursiveRegisterFsFunction );
+  // add in another _fs_ready function (should use proxy)
+  window._fs_ready = fsReadySecond;
+
+  // call _fs_ready
+  window._fs_ready();
+
+  // make sure all four functions get called
+  expect( fsReadyFirst ).toBeCalled();
+  expect( fsReadySecond ).toBeCalled();
+  expect( registerFsFunction ).toBeCalled();
+  expect( recursiveRegisterFsFunction ).toBeCalled();
+
 });

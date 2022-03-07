@@ -18,3 +18,7 @@ Object.defineProperty(window, 'FS', {
   writable: true, // allows removing and re-adding FS within tests
   value: FS,
 });
+
+export function makeFSReady() {
+  FS.getCurrentSessionURL = jest.fn();
+}

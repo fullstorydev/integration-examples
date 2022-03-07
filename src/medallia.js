@@ -38,7 +38,7 @@ function handleSubmitFeedback(event) {
 /**
  * window['_fs_medallia_use_label'] changes how feedback items are stored in the custom event.
  * The default behavior is _fs_medallia_use_label=false.
- * _fs_medallia_use_label=true stores "How would you rate our store?":7
+ * _fs_medallia_use_label=true stores "How_would_you_rate_our_store":7
  * _fs_medallia_use_label=false stores OSAT_7_Store:7
  */
 

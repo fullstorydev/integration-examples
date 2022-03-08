@@ -3,7 +3,7 @@ import { fs } from './utils/fs';
 /**
  * Handles the MDigital_Submit_Feedback event:
  * - Attributes NPS score to user using `FS.setUserVars`
- * - Creates a single "Medallia Feedback" with content name value pairs
+ * - Creates a single "Medallia Feedback" custom event with content name value pairs
  * @param event MDigital_Submit_Feedback event
  */
 function handleSubmitFeedback(event) {
@@ -24,11 +24,27 @@ function handleSubmitFeedback(event) {
     if (detail.Content[i].unique_name === 'NPS') {
       fs('setUserVars')({ NPS: detail.Content[i].value });
     } else {
-      payload[detail.Content[i].unique_name] = detail.Content[i].value;
+      if (window['_fs_medallia_use_label'] && detail.Content[i].label) {
+        payload[detail.Content[i].label.trim().replace(/\s/g, '_')] = detail.Content[i].value;
+      } else {
+        payload[detail.Content[i].unique_name] = detail.Content[i].value;
+      }
     }
   }
 
   fs('event')('Medallia Feedback', payload);
 }
 
-window.addEventListener('MDigital_Submit_Feedback', handleSubmitFeedback);
+/**
+ * window['_fs_medallia_use_label'] changes how feedback items are stored in the custom event.
+ * The default behavior is _fs_medallia_use_label=false.
+ * _fs_medallia_use_label=true stores "How_would_you_rate_our_store":7
+ * _fs_medallia_use_label=false stores OSAT_7_Store:7
+ */
+
+// window['_fs_medallia_use_label'] = true;
+
+if (!window['_fs_medallia_feedback_registered']) {
+  window.addEventListener('MDigital_Submit_Feedback', handleSubmitFeedback);
+  window['_fs_medallia_feedback_registered'] = true;
+}

@@ -6,13 +6,13 @@
 export function fs(api) {
   if (!hasFs()) {
     return function () {
-      console.error(`FullStory unavailable, check your snippet or tag`);
+      console.error('FullStory unavailable, check your snippet or tag');
     }
   } else {
     // guard against older snippets that may not define an API
     if (api && !window[window._fs_namespace][api]) {
       return function () {
-        console.error(`${window._fs_namespace}.${api} unavailable, update your snippet or verify the API call`);
+        console.error(window._fs_namespace + '.' + api + ' unavailable, update your snippet or verify the API call');
       }
     }
     return api ? window[window._fs_namespace][api] : window[window._fs_namespace];

@@ -4,12 +4,12 @@
   function fs(api) {
     if (!hasFs()) {
       return function () {
-        console.error("FullStory unavailable, check your snippet or tag");
+        console.error('FullStory unavailable, check your snippet or tag');
       };
     } else {
       if (api && !window[window._fs_namespace][api]) {
         return function () {
-          console.error("".concat(window._fs_namespace, ".").concat(api, " unavailable, update your snippet or verify the API call"));
+          console.error(window._fs_namespace + '.' + api + ' unavailable, update your snippet or verify the API call');
         };
       }
       return api ? window[window._fs_namespace][api] : window[window._fs_namespace];
@@ -36,11 +36,18 @@
           NPS: detail.Content[i].value
         });
       } else {
-        payload[detail.Content[i].unique_name] = detail.Content[i].value;
+        if (window['_fs_medallia_use_label'] && detail.Content[i].label) {
+          payload[detail.Content[i].label.trim().replace(/\s/g, '_')] = detail.Content[i].value;
+        } else {
+          payload[detail.Content[i].unique_name] = detail.Content[i].value;
+        }
       }
     }
     fs('event')('Medallia Feedback', payload);
   }
-  window.addEventListener('MDigital_Submit_Feedback', handleSubmitFeedback);
+  if (!window['_fs_medallia_feedback_registered']) {
+    window.addEventListener('MDigital_Submit_Feedback', handleSubmitFeedback);
+    window['_fs_medallia_feedback_registered'] = true;
+  }
 
 }());

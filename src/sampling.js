@@ -7,5 +7,5 @@ const rate = 10;
 const daysValid = 90;
 
 if (sample(rate, daysValid)) {
-  console.log('REPLACE THIS LINE WITH YOUR FULLSTORY SNIPPET');
+  console.log('REPLACE THIS ENTIRE LINE AND CONSOLE LOG WITH YOUR FULLSTORY SNIPPET');
 }

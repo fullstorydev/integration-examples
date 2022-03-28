@@ -1,16 +1,26 @@
 import {makeFSReady} from "../__mocks__/fs";
-import "../__mocks__/addEventListener";
 import "../src/adobe-target";
 import {fs} from "../src/utils/fs";
-import {ADOBE_TARGET_RESPONSE, ADOBE_TARGET_TYPE, eventListenerFunction} from "../__mocks__/addEventListener";
+
+const ADOBE_TARGET_TYPE = 'at-request-succeeded';
+const ADOBE_TARGET_RESPONSE = {
+    detail : {
+        responseTokens: [
+            {
+                activityid_str: 438519,
+                experienceid_str: 1,
+                optionid_str: 3
+            }
+        ]
+    }
+}
 
 describe('Adobe target', () => {
 
-    test('Basic function', () => {
+    test('Delayed calling of fs.event', () => {
+        document.dispatchEvent( new CustomEvent( ADOBE_TARGET_TYPE, ADOBE_TARGET_RESPONSE ) );
         // before fs is ready, listener should still be called
         expect(fs("event")).toBeCalledTimes(0);
-        expect(eventListenerFunction).toBeCalledTimes(1);
-        expect(eventListenerFunction.mock.calls[0][0]).toEqual(ADOBE_TARGET_TYPE);
         // kick off the fs ready
         makeFSReady();
         window._fs_ready();

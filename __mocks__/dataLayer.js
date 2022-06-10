@@ -8,6 +8,7 @@ export const VARIANT = "1";
 export const OPTIMIZE_ID2 = "1234567";
 export const VARIANT2 = "2";
 
+
 let dataLayer = {};
 // implement the push function.  New implementations can be placed in here
 dataLayer.push = jest.fn( (newValue) => {
@@ -29,6 +30,14 @@ dataLayer.push = jest.fn( (newValue) => {
     object.callback( VARIANT2, OPTIMIZE_ID );
     // as should the following one
     object.callback( VARIANT2, OPTIMIZE_ID );
+    // this one depends on wait setting
+    setTimeout( () => {
+      object.callback( VARIANT2, OPTIMIZE_ID );
+    }, 500 );
+    // as does this one
+    setTimeout( () => {
+      object.callback( VARIANT2, OPTIMIZE_ID );
+    }, 1100 );
   }
 });
 Object.defineProperty(window, 'dataLayer', {

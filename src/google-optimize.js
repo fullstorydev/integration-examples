@@ -18,14 +18,15 @@ registerFsReady(
 let lastExperimentID = undefined;
 let lastExperimentValue = undefined;
 let lastExperimentFired = undefined;
-
 // take the optimize callback and turn it into an FS event
 function optimizeCallback( value, id ) {
+  let testThrottleValue = parseInt( window['_fs_google_optimize_throttle'] );
+  let throttleValue = Number.isNaN( testThrottleValue ) ? 1000 : testThrottleValue;
   // "Experiment Viewed" was selected as of the time of this addition, it allows for a higher
   // rate limit on calls.  Instead of 10/second 30/minute default, it allows 40/second 60/minut
   let now = Date.now();
   if( (lastExperimentID === id) && (lastExperimentValue === value) ){
-    if( lastExperimentFired && (now - lastExperimentFired < 1000) ){
+    if( lastExperimentFired && (now - lastExperimentFired < throttleValue) ){
       return;
     }
   }

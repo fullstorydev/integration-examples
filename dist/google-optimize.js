@@ -64,9 +64,11 @@
   var lastExperimentValue = undefined;
   var lastExperimentFired = undefined;
   function optimizeCallback(value, id) {
+    var testThrottleValue = parseInt(window['_fs_google_optimize_throttle']);
+    var throttleValue = Number.isNaN(testThrottleValue) ? 1000 : testThrottleValue;
     var now = Date.now();
     if (lastExperimentID === id && lastExperimentValue === value) {
-      if (lastExperimentFired && now - lastExperimentFired < 1000) {
+      if (lastExperimentFired && now - lastExperimentFired < throttleValue) {
         return;
       }
     }

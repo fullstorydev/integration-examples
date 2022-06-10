@@ -5,6 +5,8 @@
 // used for GOOGLE OPTIMIZE implementation
 export const OPTIMIZE_ID = "123456";
 export const VARIANT = "1";
+export const OPTIMIZE_ID2 = "1234567";
+export const VARIANT2 = "2";
 
 let dataLayer = {};
 // implement the push function.  New implementations can be placed in here
@@ -20,6 +22,13 @@ dataLayer.push = jest.fn( (newValue) => {
   // look for very specific event, optimize.callback, callbackfn() push
   if( operation && (operation === "event") && description && (description === "optimize.callback") && object && (typeof( object.callback ) === "function") ){
     object.callback( VARIANT, OPTIMIZE_ID );
+    object.callback( VARIANT, OPTIMIZE_ID2 );
+    object.callback( VARIANT, OPTIMIZE_ID );
+    // this one should be filtered out
+    object.callback( VARIANT, OPTIMIZE_ID );
+    object.callback( VARIANT2, OPTIMIZE_ID );
+    // as should the following one
+    object.callback( VARIANT2, OPTIMIZE_ID );
   }
 });
 Object.defineProperty(window, 'dataLayer', {

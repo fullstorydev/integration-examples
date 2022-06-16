@@ -32,6 +32,18 @@ const MDigital_Submit_Feedback = {
       label: 'How would you rate your store visit?',
       unique_name: 'OSAT_7_Store',
       value: 5
+    },
+    {
+      id: 422871,
+      type: 'text',
+      unique_name: 'Name',
+      value: 'User Name'
+    },
+    {
+      id: 422872,
+      type: 'text',
+      unique_name: 'Email',
+      value: 5
     }
   ],
 };
@@ -74,6 +86,7 @@ describe('Medallia Feedback', () => {
       Driver1_NPS: 6,
       OSAT_7_DIY_Home: 7,
       OSAT_7_Store: 5,
+      // NOTE that "Name" and "Email" unique names are removed by default
     });
   });
 

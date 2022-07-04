@@ -44,6 +44,18 @@ const MDigital_Submit_Feedback = {
       type: 'text',
       unique_name: 'Email',
       value: 5
+    },
+    {
+      id: 422873,
+      type: 'text',
+      label: 'Name',
+      value: 'User Name'
+    },
+    {
+      id: 422874,
+      type: 'text',
+      label: 'Email',
+      value: "test@gmail.com"
     }
   ],
 };

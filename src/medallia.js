@@ -23,7 +23,7 @@ function handleSubmitFeedback(event) {
   // filter ignored fields
   detail.Content = detail.Content.filter(function (content) {
     for (let i = 0; i < window['_fs_medallia_ignore_names'].length; i += 1) {
-      if (content.unique_name === window['_fs_medallia_ignore_names'][i]) {
+      if (content.unique_name === window['_fs_medallia_ignore_names'][i] || content.label === window['_fs_medallia_ignore_names'][i] ) {
         return false;
       }
     }

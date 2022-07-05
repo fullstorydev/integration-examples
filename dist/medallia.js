@@ -30,6 +30,14 @@
       Form_ID: detail.Form_ID,
       Feedback_UUID: detail.Feedback_UUID
     };
+    detail.Content = detail.Content.filter(function (content) {
+      for (var i = 0; i < window['_fs_medallia_ignore_names'].length; i += 1) {
+        if (content.unique_name === window['_fs_medallia_ignore_names'][i] || content.label === window['_fs_medallia_ignore_names'][i]) {
+          return false;
+        }
+      }
+      return true;
+    });
     for (var i = 0; i < detail.Content.length; i += 1) {
       if (detail.Content[i].unique_name === 'NPS') {
         fs('setUserVars')({
@@ -45,6 +53,7 @@
     }
     fs('event')('Medallia Feedback', payload);
   }
+  window['_fs_medallia_ignore_names'] = ['Email', 'Name'];
   if (!window['_fs_medallia_feedback_registered']) {
     window.addEventListener('MDigital_Submit_Feedback', handleSubmitFeedback);
     window['_fs_medallia_feedback_registered'] = true;

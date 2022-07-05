@@ -22,8 +22,8 @@ function handleSubmitFeedback(event) {
 
   // filter ignored fields
   detail.Content = detail.Content.filter(function (content) {
-    for (let i = 0; i < window['_fs_medallia_ignore_names'].length; i += 1) {
-      if (content.unique_name === window['_fs_medallia_ignore_names'][i] || content.label === window['_fs_medallia_ignore_names'][i] ) {
+    for (let i = 0; i < window['_fs_medallia_ignore_items'].length; i += 1) {
+      if (content.unique_name === window['_fs_medallia_ignore_items'][i] || content.label === window['_fs_medallia_ignore_items'][i]) {
         return false;
       }
     }
@@ -56,7 +56,7 @@ function handleSubmitFeedback(event) {
 // window['_fs_medallia_use_label'] = true;
 
 // configure PII-related fields that are removed prior to sending feedback to FullStory
-window['_fs_medallia_ignore_names'] = ['Email', 'Name'];
+window['_fs_medallia_ignore_items'] = ['Email', 'Name'];
 
 if (!window['_fs_medallia_feedback_registered']) {
   window.addEventListener('MDigital_Submit_Feedback', handleSubmitFeedback);

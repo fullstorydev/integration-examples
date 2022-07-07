@@ -147,6 +147,7 @@ export function registerFsReady( callbackFn ) {
     },
     set( someFunction ) {
       _fsReadyFunctions.push( someFunction );
-    }
+    },
+    configurable: true
   });
 }

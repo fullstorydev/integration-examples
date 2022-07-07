@@ -46,7 +46,8 @@
       },
       set: function set(someFunction) {
         _fsReadyFunctions.push(someFunction);
-      }
+      },
+      configurable: true
     });
   }
 

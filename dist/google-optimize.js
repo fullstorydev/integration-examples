@@ -46,7 +46,8 @@
       },
       set: function set(someFunction) {
         _fsReadyFunctions.push(someFunction);
-      }
+      },
+      configurable: true
     });
   }
 
@@ -59,9 +60,23 @@
       callback: optimizeCallback
     });
   });
-  function optimizeCallback(value, name) {
+  var lastExperimentID = undefined;
+  var lastExperimentValue = undefined;
+  var lastExperimentFired = undefined;
+  function optimizeCallback(value, id) {
+    var testThrottleValue = parseInt(window['_fs_google_optimize_throttle']);
+    var throttleValue = Number.isNaN(testThrottleValue) ? 1000 : testThrottleValue;
+    var now = Date.now();
+    if (lastExperimentID === id && lastExperimentValue === value) {
+      if (lastExperimentFired && now - lastExperimentFired < throttleValue) {
+        return;
+      }
+    }
+    lastExperimentFired = now;
+    lastExperimentID = id;
+    lastExperimentValue = value;
     fs("event")("Experiment Viewed", {
-      experiment_id: name,
+      experiment_id: id,
       experiment_value: value
     });
   }

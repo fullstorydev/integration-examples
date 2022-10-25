@@ -1,6 +1,6 @@
 import '../__mocks__/fs';
-import {fs, hasFs, sample, waitUntil, registerFsReady, isFsReady} from '../src/utils/fs';
-import {makeFSReady} from "../__mocks__/fs";
+import { fs, hasFs, sample, waitUntil, registerFsReady, isFsReady } from '../src/utils/fs';
+import { makeFSReady } from "../__mocks__/fs";
 
 const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
@@ -111,7 +111,7 @@ describe('FullStory utilities', () => {
     waitUntil(predicateFn, callbackFn, timeout, timeoutFn);
   });
 
-  test('sampling rate can be configured', () => {
+  test('sampling can use cookie strategy', () => {
     const rate = 10; // 10% sample rate
     const numTests = 100 / rate;
 
@@ -120,7 +120,12 @@ describe('FullStory utilities', () => {
     for (let i = 0; i < numTests; i += 1) {
       for (let j = 0; j < rate; j += 1) {
         // check the random result
-        if (sample(rate, 30)) {
+        const result = sample(rate, false, 30);
+
+        // the result should be persisted and subsequent values should always match until expiration
+        expect(result).toEqual(sample(rate, false, 30));
+
+        if (result) {
           // if it's true, the user is sampled and mark success
           success = true;
         } else {
@@ -139,33 +144,46 @@ describe('FullStory utilities', () => {
     expect(document.cookie).not.toContain('_fs_sample_user=false');
   });
 
-  test('existing _fs_sample_user cookie value should be re-used', () => {
-    const numTests = 100;
-    const rate = 10; // 10% sample rate
+  test('sampling can use localStorage strategy', () => {
+    const rate = 20; // 20% sample rate
+    const numTests = 100 / rate;
 
-    const samples = [];
+    const days = 30; // number of days until re-sampling occurs
 
-    // manually set to cookie to sample the user
-    document.cookie = '_fs_sample_user=true; path=/';
-
-    // run a sufficient number of tests to overcome
-    for (let i = 0; i < numTests; i += 1) {
-      samples[i] = sample(rate);
-    }
-
-    // for every sample result, expect the existing cookie's value to be used
-    expect(samples).toContain(true);
-    expect(samples).not.toContain(false);
-
-    // do the exact same as the above but for the non-sample scenario
-    document.cookie = '_fs_sample_user=false; path=/';
+    let success = false;
 
     for (let i = 0; i < numTests; i += 1) {
-      samples[i] = sample(rate);
+      for (let j = 0; j < rate; j += 1) {
+        // check the random result
+        const result = sample(rate, true, days);
+
+        // the result should be persisted and subsequent values should always match until expiration
+        expect(result).toEqual(sample(rate, true, days));
+
+        // an expiry should exist and be greater than the current time but less than
+        const approximateExpires = Date.now() + (days * 24 * 60 * 60 * 1000);
+        expect(JSON.parse(localStorage.getItem('_fs_sample_user')).expires).toBeTruthy();
+        // expect the approximate expiration to be +/- two seconds
+        expect(JSON.parse(localStorage.getItem('_fs_sample_user')).expires).toBeGreaterThan(approximateExpires - 2000);
+        expect(JSON.parse(localStorage.getItem('_fs_sample_user')).expires).toBeLessThan(approximateExpires + 2000);
+
+        if (result) {
+          // if it's true, the user is sampled and mark success
+          success = true;
+        } else {
+          // if the user was not sampled, localStorage has been set to false
+          expect(JSON.parse(localStorage.getItem('_fs_sample_user'))).toBeTruthy();
+          expect(JSON.parse(localStorage.getItem('_fs_sample_user')).sample).toEqual(false);
+          // manually clear localStorage to allow for another random result
+          localStorage.setItem('_fs_sample_user', null);
+        }
+      }
     }
 
-    expect(samples).toContain(false);
-    expect(samples).not.toContain(true);
+    // after `numTests` the expectation is that the user *should have* been randomly sampled
+    expect(success).toEqual(true);
+    expect(JSON.parse(localStorage.getItem('_fs_sample_user'))).toBeTruthy();
+    expect(JSON.parse(localStorage.getItem('_fs_sample_user')).sample).toEqual(true);
   });
 
   test('invalid _fs_sample_user cookie re-samples', () => {
@@ -176,7 +194,7 @@ describe('FullStory utilities', () => {
 
     // this will cause the `sample` function to run and randomly sample
     // and overwrites the invalid cookie
-    const shouldSample = sample(rate);
+    const shouldSample = sample(rate, false);
     expect(document.cookie).toEqual(`_fs_sample_user=${shouldSample}`);
   });
 });
@@ -184,13 +202,13 @@ describe('FullStory utilities', () => {
 test('test registerCallback variations', () => {
 
   // setup some functions we will be testing that they get called
-  const fsReadyFirst = jest.fn( () => {
+  const fsReadyFirst = jest.fn(() => {
   });
-  const fsReadySecond = jest.fn( () => {
+  const fsReadySecond = jest.fn(() => {
   });
-  const registerFsFunction = jest.fn( () => {
+  const registerFsFunction = jest.fn(() => {
   });
-  const recursiveRegisterFsFunction = jest.fn( () => {
+  const recursiveRegisterFsFunction = jest.fn(() => {
   });
 
   // add in our first function into the _fs_ready
@@ -198,9 +216,9 @@ test('test registerCallback variations', () => {
   // make sure hasFs will return false
   window._fs_namespace = 'JEST';
   // register a function
-  registerFsReady( registerFsFunction );
+  registerFsReady(registerFsFunction);
   // register a second function (should support recursive)
-  registerFsReady( recursiveRegisterFsFunction );
+  registerFsReady(recursiveRegisterFsFunction);
   // add in another _fs_ready function (should use proxy)
   window._fs_ready = fsReadySecond;
 
@@ -208,9 +226,9 @@ test('test registerCallback variations', () => {
   window._fs_ready();
 
   // make sure all four functions get called
-  expect( fsReadyFirst ).toBeCalled();
-  expect( fsReadySecond ).toBeCalled();
-  expect( registerFsFunction ).toBeCalled();
-  expect( recursiveRegisterFsFunction ).toBeCalled();
+  expect(fsReadyFirst).toBeCalled();
+  expect(fsReadySecond).toBeCalled();
+  expect(registerFsFunction).toBeCalled();
+  expect(recursiveRegisterFsFunction).toBeCalled();
 
 });

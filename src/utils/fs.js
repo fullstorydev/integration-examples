@@ -39,14 +39,25 @@ export function isFsReady() {
 }
 
 /**
- * Samples a current user. If the user is randomly sampled, a cookie will be set on the user's browser.
- * Subsequent invocations of `sample` will return the previously stored cookie value. Note this approach
- * is subject to being cleared by user cache, vendor cookie limitations, etc.
- * @param rate Whole number between 0 and 100 that indicates the sample rate (e.g. 10%)
- * @param daysValid Number of days until the user is re-sampled; defaults to `30` days
+ * Samples a current user. Subsequent invocations will return the previously stored value.
+ * @param rate Whole number between 0 and 100 that indicates the sample rate; defaults to `10` (i.e 10%)
+ * @param useLocalStorage `true` if `localStorage` should be used and `false` if cookies should be used
+ * @param days Number of days until the user is re-sampled; defaults to `30` days
  * @returns true if the user should be sampled
  */
-export function sample(rate, daysValid) {
+export function sample(rate = 10, useLocalStorage = false, days = 30) {
+  return useLocalStorage ? sampleLocalStorage(rate, days) : sampleCookie(rate, days);
+}
+
+/**
+ * Samples a current user. If the user is randomly sampled, a cookie will be set on the user's browser.
+ * Subsequent invocations will return the previously stored cookie value. Note this approach
+ * is subject to being cleared by user cache, vendor cookie limitations, etc.
+ * @param rate Whole number between 0 and 100 that indicates the sample rate; defaults to `10` (i.e 10%)
+ * @param days Number of days until the user is re-sampled; defaults to `30` days
+ * @returns true if the user should be sampled
+ */
+export function sampleCookie(rate = 10, days = 30) {
   const cookieName = '_fs_sample_user';
 
   try {
@@ -60,7 +71,6 @@ export function sample(rate, daysValid) {
       const shouldSample = (Math.random() < (rate / 100));
 
       // calculate the expiration date of the cookie
-      const days = (daysValid !== undefined && daysValid > 0) ? daysValid : 30;
       const date = new Date();
       date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
 
@@ -70,11 +80,49 @@ export function sample(rate, daysValid) {
       return shouldSample;
     }
   } catch (err) {
-    console.error('FullStory unavailable, unable to sample user');
+    console.error('FullStory not loaded, unable to sample user');
     // default to not sampling the user to prevent errors from over-sampling
     return false;
   }
 }
+
+/**
+ * Samples a current user. If the user is randomly sampled, a `true` value will be set in `localStorage`.
+ * Subsequent invocations will return the previously stored value. Note this approach
+ * is subject to being cleared by user cache, `localStorage` security restriction, etc.
+ * @param rate Whole number between 0 and 100 that indicates the sample rate; defaults to `10` (i.e 10%)
+ * @param days Number of days until the user is re-sampled; defaults to `30` days
+ * @returns true if the user should be sampled
+ */
+export function sampleLocalStorage(rate = 10, days = 30) {
+  const key = '_fs_sample_user';
+
+  try {
+    const now = new Date();
+    const value = JSON.parse(localStorage.getItem(key));
+
+    // the sample function has successfully run previously and is not expired
+    if (value !== null && now.getTime() <= value.expires) {
+      return value.sample;
+    } else {
+      // decide if the user should be sampled and store the result
+      const shouldSample = (Math.random() < (rate / 100));
+
+      // store the sampling data
+      localStorage.setItem(key, JSON.stringify({
+        sample: shouldSample,
+        expires: now.getTime() + (days * 24 * 60 * 60 * 1000),
+      }));
+
+      return shouldSample;
+    }
+  } catch (err) {
+    console.error('FullStory not loaded, unable to sample user');
+    // default to not sampling the user to prevent errors from over-sampling
+    return false;
+  }
+}
+
 
 /**
  * Waits until a `predicateFn` returns truthy and executes a `callbackFn`.
@@ -111,11 +159,11 @@ export function waitUntil(predicateFn, callbackFn, timeout, timeoutFn) {
 // array of all the fsReadyFunctions we need to call and proxy function to call them
 const _fsReadyFunctions = [];
 function proxiedFsReady() {
-  for( let x=0; x<_fsReadyFunctions.length; x++ ){
+  for (let x = 0; x < _fsReadyFunctions.length; x++) {
     try {
       _fsReadyFunctions[x]();
-    }catch( error ){
-      console.warn( "Proxied _fs_ready function threw error", error );
+    } catch (error) {
+      console.warn("Proxied _fs_ready function threw error", error);
     }
   }
 }
@@ -126,27 +174,27 @@ function proxiedFsReady() {
  * @param callbackFn Function to call when _fs_ready would be called
  *
  */
-export function registerFsReady( callbackFn ) {
+export function registerFsReady(callbackFn) {
   // first if we already have fullstory, then call it back
-  if( isFsReady() ){
+  if (isFsReady()) {
     callbackFn();
     return;
   }
   // if there is a window _fs_ready already, push it into the array
   // unless the function is already our proxied version
-  if( window._fs_ready && !(window._fs_ready === proxiedFsReady) ) {
-    _fsReadyFunctions.push( window._fs_ready );
+  if (window._fs_ready && !(window._fs_ready === proxiedFsReady)) {
+    _fsReadyFunctions.push(window._fs_ready);
   }
   // make sure to push the new function into the array to be called
-  _fsReadyFunctions.push( callbackFn );
+  _fsReadyFunctions.push(callbackFn);
   // define the _fs_ready property on window, wrapping it with our proxy
   // and intercepting set calls to push them onto the stack
-  Object.defineProperty( window, "_fs_ready", {
+  Object.defineProperty(window, "_fs_ready", {
     get() {
       return proxiedFsReady;
     },
-    set( someFunction ) {
-      _fsReadyFunctions.push( someFunction );
+    set(someFunction) {
+      _fsReadyFunctions.push(someFunction);
     },
     configurable: true
   });

@@ -3,6 +3,11 @@ Object.defineProperty(window, '_fs_namespace', {
   value: 'FS'
 });
 
+let FS_SESSION_URL = "";
+export function setSessionURL( sessionURL ) {
+  FS_SESSION_URL = sessionURL;
+}
+
 // define an ES5 class similar to the recording snippet
 const FS = () => { };
 FS.event = jest.fn();
@@ -20,5 +25,7 @@ Object.defineProperty(window, 'FS', {
 });
 
 export function makeFSReady() {
-  FS.getCurrentSessionURL = jest.fn();
+  FS.getCurrentSessionURL = jest.fn( () => {
+    return FS_SESSION_URL;
+  });
 }

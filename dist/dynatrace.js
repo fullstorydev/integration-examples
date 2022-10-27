@@ -52,9 +52,11 @@
   }
 
   registerFsReady(function () {
-    dtrum.sendSessionProperties(null, null, {
-      'fullStorySession': fs('getCurrentSessionURL')()
-    });
+    if (dtrum) {
+      dtrum.sendSessionProperties(null, null, {
+        'fullStorySession': fs('getCurrentSessionURL')()
+      });
+    }
   });
 
 }());

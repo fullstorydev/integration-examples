@@ -1,5 +1,7 @@
 import {fs, registerFsReady} from "./utils/fs";
 
 registerFsReady( () => {
-    dtrum.sendSessionProperties( null, null, { 'fullStorySession': fs( 'getCurrentSessionURL')() } );
+    if( dtrum ){
+        dtrum.sendSessionProperties( null, null, { 'fullStorySession': fs( 'getCurrentSessionURL')() } );
+    }
 });

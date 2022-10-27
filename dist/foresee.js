@@ -52,7 +52,6 @@
   }
 
   registerFsReady(function () {
-    console.log("FSR", FSR);
     if (FSR && FSR.CPPS) {
       FSR.CPPS.set('fullStorySession', fs('getCurrentSessionURL')());
     }

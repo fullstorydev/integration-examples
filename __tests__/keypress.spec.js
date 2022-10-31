@@ -4,7 +4,7 @@ import '../src/keypress';
 
 describe('Keydown Custom Event', () => {
   test('record a keydown custom event', () => {
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab' }));
+    document.dispatchEvent(new KeyboardEvent('keyup', { key: 'Tab' }));
 
     expect(fs('event')).toBeCalled();
     expect(fs('event').mock.calls[0][0]).toEqual('Key Pressed');
@@ -12,8 +12,8 @@ describe('Keydown Custom Event', () => {
   });
 
   test('ignored keys are not recorded', () => {
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'a' }));
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Shift' }));
+    document.dispatchEvent(new KeyboardEvent('keyup', { key: 'a' }));
+    document.dispatchEvent(new KeyboardEvent('keyup', { key: 'Shift' }));
 
     expect(fs('event')).toBeCalledTimes(1);
   });
@@ -22,7 +22,7 @@ describe('Keydown Custom Event', () => {
     const defaultKeys = ['Tab', 'ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'];
 
     for (let i = 0; i < defaultKeys.length; i += 1) {
-      document.dispatchEvent(new KeyboardEvent('keydown', { key: defaultKeys[i] }));
+      document.dispatchEvent(new KeyboardEvent('keyup', { key: defaultKeys[i] }));
 
       expect(fs('event')).toBeCalledTimes(i + 2);
       expect(fs('event').mock.calls[i + 1][0]).toEqual('Key Pressed');

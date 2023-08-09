@@ -1,3 +1,10 @@
+//The following snippet implements a user based sampling approach utilizing browser cookies (sample users at X percent).
+//We assume a "user" will visit the site from the same browser without clearing cookies and if the site is visited from the same browser the "user" will always be the same.
+//This approach is used so the customer can measure goals and establish patterns in user behavior over time, such as retention over daysValid.
+//The following equation can help a client determine the appropriate values of rate & daysValid.
+//rate (%) = (AllottedSessionsForOrg / (NumberOfTotalUniqueUsers * AvgSessionsPerDayPerUser * daysValid)) * 100
+//Each implementation of this snippet will be unique, updating line 33, 31, and 30.
+
 (function () {
   'use strict';
 
